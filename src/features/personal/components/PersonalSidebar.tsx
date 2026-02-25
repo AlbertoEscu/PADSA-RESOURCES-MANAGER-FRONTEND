@@ -1,6 +1,9 @@
+import FeatureNavButton from "../../../app/layout/FeatureNavButtonProps";
+
 const PersonalSidebar = () => {
-    return (
-        <div className="
+  return (
+    <div
+      className="
   w-60
   h-full
   p-4
@@ -14,62 +17,16 @@ const PersonalSidebar = () => {
   shadow-lg
   shadow-blue-900/30
   rounded-2xl
-">
-            <button className="
-  bg-blue-500/80
-  text-white
-  rounded-lg
-  py-2
-  transition
-  duration-200
-  ease-in-out
-  transform
-  hover:bg-blue-600
-  hover:scale-105
-  hover:shadow-lg
-  hover:shadow-blue-900/40
-  active:scale-95
-">
-                Datos Generales
-            </button>
+"
+    >
+      <FeatureNavButton to="/personal/datos">Datos Generales</FeatureNavButton>
+      <FeatureNavButton to="/personal/perfil">
+        Perfil / Habilidades
+      </FeatureNavButton>
 
-            <button className="
-  bg-blue-500/80
-  text-white
-  rounded-lg
-  py-2
-  transition
-  duration-200
-  ease-in-out
-  transform
-  hover:bg-blue-600
-  hover:scale-105
-  hover:shadow-lg
-  hover:shadow-blue-900/40
-  active:scale-95
-">
-                Perfil / Habilidades
-            </button>
-
-            <button className="
-  bg-blue-500/80
-  text-white
-  rounded-lg
-  py-2
-  transition
-  duration-200
-  ease-in-out
-  transform
-  hover:bg-blue-600
-  hover:scale-105
-  hover:shadow-lg
-  hover:shadow-blue-900/40
-  active:scale-95
-">
-                Proyecto
-            </button>
-        </div>
-    );
+      <FeatureNavButton to="/personal/proyecto">Proyecto</FeatureNavButton>
+    </div>
+  );
 };
 
 export default PersonalSidebar;

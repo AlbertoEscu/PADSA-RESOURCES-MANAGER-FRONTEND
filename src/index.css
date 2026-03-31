@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "tailwindcss";
+
+/* =========================
+   PADSA THEME (Tailwind v4)
+   ========================= */
+
+@theme {
+
+  /* Colores principales */
+  --color-padsa-primary: #ff1f2d;
+  --color-padsa-primary-dark: #cc0f1a;
+  --color-padsa-primary-light: #ff4d57;
+
+  /* Backgrounds */
+  --color-padsa-background: #0f1115;
+  --color-padsa-surface: #1a1d24;
+  --color-padsa-surface-light: #232733;
+
+  /* Text */
+  --color-padsa-text-primary: #ffffff;
+  --color-padsa-text-secondary: #a1a1aa;
+
+  /* Border */
+  --color-padsa-border: #2a2f3a;
+
+}
+
+
+/* sombras personalizadas */
+@layer utilities {
+
+  .shadow-padsa {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .glow-padsa {
+    box-shadow: 0 0 20px rgba(255,31,45,0.4);
+  }
+
+}
+
+@keyframes fade-in {
+
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}

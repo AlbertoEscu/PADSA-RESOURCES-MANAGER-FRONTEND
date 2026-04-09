@@ -26,13 +26,10 @@ import { EditTarifaRecursoPage } from "../features/recource-rate/pages/EditTarif
 
 import { GenerarReportesPage } from "../features/reports/pages/GenerarReportesPage";
 
-import { PersonalProfilePage } from "../features/personal/pages/PersonalProfilePage";
 import { PersonalProjectPage } from "../features/personal/pages/PersonalProjectPage";
 
 import { AltaPersonalPage } from "../features/personal/pages/AltaPersonalPage";
-import { AltaPersonalSkillsPage } from "../features/personal/pages/AltaPersonalSkillsPage";
 import { AltaPersonalProjectPage } from "../features/personal/pages/AltaPersonalProjectPage";
-import { AltaPersonalProfilePage } from "../features/personal/pages/AltaPersonalProfilePage";
 
 import { PersonalWizardLayout } from "../features/personal/components/PersonalWizardLayout";
 import { PersonalModuleLayout } from "../features/personal/components/PersonalModuleLayout";
@@ -106,22 +103,17 @@ export const AppRouter = () => {
         >
           {/* LISTADO PRINCIPAL */}
           <Route index element={<PersonalPage />} />
-          <Route path="profile" element={<PersonalProfilePage />} />
           <Route path="projects" element={<PersonalProjectPage />} />
 
           {/* 🧙 WIZARD CREATE */}
           <Route path="new/*" element={<PersonalWizardLayout />}>
             <Route index element={<AltaPersonalPage />} />
-            <Route path="profile" element={<AltaPersonalProfilePage />} />
-            <Route path="skills" element={<AltaPersonalSkillsPage />} />
             <Route path="project" element={<AltaPersonalProjectPage />} />
           </Route>
 
           {/* ✏️ WIZARD EDIT */}
           <Route path="edit/:id/*" element={<PersonalWizardLayout />}>
             <Route index element={<AltaPersonalPage />} />
-            <Route path="profile" element={<AltaPersonalProfilePage />} />
-            <Route path="skills" element={<AltaPersonalSkillsPage />} />
             <Route path="project" element={<AltaPersonalProjectPage />} />
           </Route>
         </Route>

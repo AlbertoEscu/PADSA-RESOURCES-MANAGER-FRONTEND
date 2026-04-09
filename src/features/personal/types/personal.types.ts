@@ -18,6 +18,9 @@ export interface PersonalDto {
   nss: string;
   estatus: string;
 
+  // 🔥 NUEVO CAMPO
+  perfil: string;
+
   fechaAlta: string;
   fechaBaja?: string;
 
@@ -25,35 +28,18 @@ export interface PersonalDto {
   usuarioModificacion: string;
 }
 
-export interface PersonalProfileDto {
-  id: number; // 🔥 AGREGAR
-  idPerfil: number;
-  idEmpleado: number;
+export interface PersonalProjectDto {
+  id: number;
 
   numeroEmpleado: string;
   nombreCompleto: string;
-
+  compania: string;
   perfil: string;
-  nivel: string;
-  estatus: string;
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
 
-export interface PersonalSkillsDto {
-  id: number; // 🔥 AGREGAR
-  idSkill: number;
-  idEmpleado: number;
+  idproyecto: number;
+  idcliente: number;
+  nombreProyecto: string;
 
-  numeroEmpleado: string;
-  nombreCompleto: string;
-
-  lenguajesProgramacion: string;
-  basesDatos: string;
-  frameworks: string;
-  cursos: string;
-  certificaciones: string;
-  estatus: string;
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { usePersonalProjectColumns } from "../config/personalProjectColumns";
-import type { PersonalSkillsDto } from "../types/personal.types";
+import type { PersonalProjectDto } from "../types/personal.types";
 import { useEffect, useState } from "react";
 import { personalService } from "../services/personal.service";
 import { motion } from "framer-motion";
@@ -11,7 +11,7 @@ export const PersonalProjectPage = () => {
   const navigate = useNavigate();
   const columns = usePersonalProjectColumns();
 
-  const [data, setData] = useState<PersonalSkillsDto[]>([]);
+const [data, setData] = useState<PersonalProjectDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [globalSearch, setGlobalSearch] = useState("");
@@ -20,11 +20,11 @@ export const PersonalProjectPage = () => {
   const pageSize = 5;
 
   const [filters, setFilters] = useState<
-    Partial<Record<keyof PersonalSkillsDto, string>>
-  >({});
+  Partial<Record<keyof PersonalProjectDto, string>>
+>({});
 
   const handleFilterChange = (
-    field: keyof PersonalSkillsDto,
+    field: keyof PersonalProjectDto,
     value: string
   ) => {
     setFilters((prev) => ({
@@ -37,7 +37,7 @@ export const PersonalProjectPage = () => {
     const loadData = async () => {
       setLoading(true);
 
-      const result = await personalService.getSkills();
+      const result = await personalService.getPersonalProjects();
 
       setData(result);
 
@@ -59,7 +59,7 @@ export const PersonalProjectPage = () => {
         if (!value) return true;
 
         const rowValue = String(
-          row[key as keyof PersonalSkillsDto] ?? ""
+          row[key as keyof PersonalProjectDto] ?? ""
         ).toLowerCase();
 
         return rowValue.includes(value.toLowerCase());
@@ -112,18 +112,18 @@ export const PersonalProjectPage = () => {
           </button>
 
           <button
-            onClick={() => navigate("/personal/new")}
+            onClick={() => navigate("/personal/new/project")}
             className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
           >
             <Plus size={16} />
-            Nuevo Registro
+            Nueva Asignacion
           </button>
         </div>
       </div>
 
       {/* TABLA */}
 
-      <DataTable<PersonalSkillsDto>
+      <DataTable<PersonalProjectDto>
         data={paginatedData}
         columns={columns}
         loading={loading}

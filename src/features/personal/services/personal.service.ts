@@ -2,8 +2,7 @@ import { axiosInstance } from "../../../api/axiosInstance";
 
 import type {
   PersonalDto,
-  PersonalProfileDto,
-  PersonalSkillsDto,
+  PersonalProjectDto,
 } from "../types/personal.types";
 
 /**
@@ -24,6 +23,13 @@ interface EmpleadoResponse {
   tipoRecurso: boolean;
   nss: number;
   estatus: string;
+
+  // 🔥 NUEVO
+  perfil?: {
+    idPerfil: number;
+    nombrePerfil: string;
+  };
+
   fechaAlta: string;
   fechaBaja?: string;
   fechaUltimaModificacion: string;
@@ -36,64 +42,19 @@ interface PageResponse<T> {
   totalPages: number;
 }
 
-interface EmpleadoProfileResponse {
-  idPerfil: number;
-  idEmpleado: number;
-  nombreEmpleado: string;
+interface PersonalProjectResponse {
+  numeroEmpleado: number;
+  nombreCompleto: string;
+  compania: string;
   perfil: string;
-  nivel: string;
-  estatus: string;
+
+  idProyecto: number;
+  idCliente: number;
+  nombreProyecto: string;
+
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }
-
-interface EmpleadoSkillsResponse {
-  idSkill: number;
-  idEmpleado: number;
-  nombreEmpleado: string;
-  lenguajesProgramacion: string;
-  basesDatos: string;
-  frameworks: string;
-  cursos: string;
-  certificaciones: string;
-  estatus: string;
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
-
-/**
- * ==========================================
- * MAPPERS
- * ==========================================
- */
-const mapProfile = (p: EmpleadoProfileResponse): PersonalProfileDto => ({
-  id: p.idPerfil,
-  idPerfil: p.idPerfil,
-  idEmpleado: p.idEmpleado,
-  numeroEmpleado: String(p.idEmpleado),
-  nombreCompleto: p.nombreEmpleado,
-  perfil: p.perfil,
-  nivel: p.nivel,
-  estatus: p.estatus,
-  fechaUltimaModificacion: p.fechaUltimaModificacion,
-  usuarioModificacion: p.usuarioModificacion,
-});
-
-const mapSkill = (s: EmpleadoSkillsResponse): PersonalSkillsDto => ({
-  id: s.idSkill,
-  idSkill: s.idSkill,
-  idEmpleado: s.idEmpleado,
-  numeroEmpleado: String(s.idEmpleado),
-  nombreCompleto: s.nombreEmpleado,
-  lenguajesProgramacion: s.lenguajesProgramacion,
-  basesDatos: s.basesDatos,
-  frameworks: s.frameworks,
-  cursos: s.cursos,
-  certificaciones: s.certificaciones,
-  estatus: s.estatus,
-  fechaUltimaModificacion: s.fechaUltimaModificacion,
-  usuarioModificacion: s.usuarioModificacion,
-});
 
 const handleRequest = async <T>(promise: Promise<any>): Promise<T> => {
   try {
@@ -119,10 +80,29 @@ const mapEmpleadoToPersonal = (emp: EmpleadoResponse): PersonalDto => ({
   tipoRecurso: emp.tipoRecurso ? "Interno" : "Externo",
   nss: String(emp.nss),
   estatus: emp.estatus,
+
+  // 🔥 AQUI VIENE LO NUEVO
+  perfil: emp.perfil?.nombrePerfil || "Sin perfil",
+
   fechaAlta: emp.fechaAlta,
   fechaBaja: emp.fechaBaja,
   fechaUltimaModificacion: emp.fechaUltimaModificacion,
   usuarioModificacion: emp.usuarioModificacion,
+});
+
+const mapPersonalProject = (item: PersonalProjectResponse): PersonalProjectDto => ({
+  id: item.numeroEmpleado,
+  numeroEmpleado: String(item.numeroEmpleado),
+  nombreCompleto: item.nombreCompleto,
+  compania: item.compania,
+  perfil: item.perfil || "Sin perfil",
+
+  idproyecto: item.idProyecto,
+  idcliente: item.idCliente,
+  nombreProyecto: item.nombreProyecto,
+
+  fechaUltimaModificacion: item.fechaUltimaModificacion,
+  usuarioModificacion: item.usuarioModificacion,
 });
 
 /**
@@ -149,11 +129,9 @@ export const personalService = {
     );
 
     return {
-      ...mapEmpleadoToPersonal(data),
-      perfiles: [],
-      skills: {},
-      proyecto: {},
-    };
+  ...mapEmpleadoToPersonal(data),
+  perfil: data.perfil, // 🔥 importante para el form
+};
   },
 
   async create(payload: any) {
@@ -164,61 +142,31 @@ export const personalService = {
     return handleRequest(axiosInstance.put(`/empleados/${id}`, payload));
   },
 
+  async getPersonalProjects(): Promise<PersonalProjectDto[]> {
+  const data = await handleRequest<PersonalProjectResponse[]>(
+    axiosInstance.get("/asignaciones/empleados-con-proyectos"),
+  );
+
+  return data.map(mapPersonalProject);
+},
+
   /**
    * ==========================================
    * 🧠 PROFILES
    * ==========================================
    */
-  async getProfilesByEmpleadoId(idEmpleado: number) {
-    const data = await handleRequest<EmpleadoProfileResponse[]>(
-      axiosInstance.get(`/empleados/${idEmpleado}/profile`),
-    );
-    return data.map(mapProfile);
-  },
-  async getProfiles(page = 0, size = 50): Promise<PersonalProfileDto[]> {
-    const data = await handleRequest<PageResponse<EmpleadoProfileResponse>>(
-      axiosInstance.get("/empleados/profile", { params: { page, size } }),
-    );
-    return data.content.map(mapProfile);
-  },
 
-  async createProfile(payload: {
-    idEmpleado: number;
-    perfil: string;
-    nivel: string;
-    usuarioModificacion: string;
-  }) {
-    return handleRequest<EmpleadoProfileResponse>(
-      axiosInstance.post("/empleados/profile", payload),
-    );
-  },
-
-  async updateProfile(
-    idPerfil: number,
-    payload: {
-      idEmpleado: number;
-      perfil: string;
-      nivel: string;
-      usuarioModificacion: string;
-    },
-  ) {
-    return handleRequest<EmpleadoProfileResponse>(
-      axiosInstance.put(`/empleados/profile/${idPerfil}`, payload),
-    );
-  },
-
-  /**
-   * ==========================================
-   * 🛠️ SKILLS
-   * ==========================================
-   */
-  async getSkills(page = 0, size = 50) {
-    const data = await handleRequest<PageResponse<EmpleadoSkillsResponse>>(
-      axiosInstance.get("/empleados/skills", {
-        params: { page, size },
+  async getPerfiles() {
+    const data = await handleRequest<PageResponse<any>>(
+      axiosInstance.get("/perfiles", {
+        params: { page: 0, size: 100 },
       }),
     );
-    return data.content.map(mapSkill);
+
+    return data.content.map((item: any) => ({
+      id: item.idPerfil,
+      nombre: item.nombrePerfil,
+    }));
   },
 
   /**

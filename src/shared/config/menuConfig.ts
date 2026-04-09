@@ -241,10 +241,6 @@ export const menuConfig: ModuleMenu[] = [
             path: "/personal",
           },
           {
-            label: "Perfil / Habilidades",
-            path: "/personal/profile",
-          },
-          {
             label: "Proyecto",
             path: "/personal/projects",
           },
@@ -261,18 +257,6 @@ export const menuConfig: ModuleMenu[] = [
             label: "Datos Generales",
             path: "/personal/new",
           },
-          {
-            label: "Perfil",
-            path: "/personal/new/profile",
-          },
-          {
-            label: "Habilidades",
-            path: "/personal/new/skills",
-          },
-          {
-            label: "Proyecto",
-            path: "/personal/new/project",
-          },
         ],
       },
 
@@ -285,6 +269,55 @@ export const menuConfig: ModuleMenu[] = [
           {
             label: "Editar",
             path: "/personal/edit/",
+            hidden: true,
+          },
+        ],
+      },
+    ],
+  },
+   /**
+   * ==========================================
+   * MÓDULO Proyectos
+   * ==========================================
+   */
+
+  {
+    basePath: "/projects",
+    title: "Proyectos",
+    items: [
+      {
+        label: "Proyectos",
+        icon: Building2,
+        children: [
+          {
+            label: "Datos Generales",
+            path: "/projects",
+          },
+        ],
+      },
+
+      // ✅ WIZARD (oculto pero usable)
+      {
+        label: "Alta Proyecto",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Datos Generales",
+            path: "/projects/new",
+          },
+        ],
+      },
+
+      // ✅ SOLO EDIT oculto (opcional)
+      {
+        label: "Editar Proyecto",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Editar",
+            path: "/projects/edit/",
             hidden: true,
           },
         ],

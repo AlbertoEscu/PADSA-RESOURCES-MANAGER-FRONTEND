@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Stepper } from "../components/Stepper";
 import { useEffect, useState } from "react";
 import { personalService } from "../services/personal.service";
 
@@ -16,14 +15,20 @@ interface FormData {
   tipoRecurso: "tecnico" | "administrativo";
   nss: string;
   usuarioModificacion: string;
+  perfilId: number;
+}
+
+interface Perfil {
+  id: number;
+  nombre: string;
 }
 
 export const AltaPersonalPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-
+  const [perfiles, setPerfiles] = useState<Perfil[]>([]);
   const [empleadoId, setEmpleadoId] = useState<number | null>(
-    id ? Number(id) : null
+    id ? Number(id) : null,
   );
 
   const isEdit = !!empleadoId;
@@ -38,6 +43,19 @@ export const AltaPersonalPage = () => {
   } = useForm<FormData>({
     mode: "onChange",
   });
+
+  useEffect(() => {
+    const loadPerfiles = async () => {
+      try {
+        const data = await personalService.getPerfiles();
+        setPerfiles(data);
+      } catch (error) {
+        console.error("❌ Error cargando perfiles", error);
+      }
+    };
+
+    loadPerfiles();
+  }, []);
 
   /**
    * ==========================================
@@ -55,6 +73,10 @@ export const AltaPersonalPage = () => {
           if (value !== undefined && value !== null) {
             if (key === "tipoRecurso") {
               setValue("tipoRecurso", value ? "tecnico" : "administrativo");
+            }
+            // 🔥 AQUÍ ESTÁ EL FIX CLAVE
+            else if (key === "perfil" && value) {
+              setValue("perfilId", (value as any).idPerfil);
             } else {
               setValue(key as keyof FormData, value as any);
             }
@@ -74,8 +96,6 @@ export const AltaPersonalPage = () => {
    * ==========================================
    */
   const handleBackendErrors = (error: any) => {
-    console.log("🔥 BACKEND ERROR:", error);
-
     const data = error?.response?.data;
 
     if (!data) {
@@ -113,23 +133,17 @@ export const AltaPersonalPage = () => {
       const payload = {
         ...formData,
         tipoRecurso: formData.tipoRecurso === "tecnico",
+        perfilId: formData.perfilId, // ✔️ explícito
       };
 
-      let currentId = empleadoId;
-
-      if (isEdit && currentId) {
-        await personalService.update(currentId, payload);
-
-        // 🔵 EDIT → regresa a tabla
-        navigate("/personal");
+      if (isEdit && empleadoId) {
+        await personalService.update(empleadoId, payload);
       } else {
-        const response = await personalService.create(payload);
-        currentId = response.idEmpleado;
-        setEmpleadoId(currentId);
-
-        // 🟢 CREATE → va a profile
-        navigate(`/personal/edit/${currentId}/profile`);
+        await personalService.create(payload);
       }
+
+      // 🔵 TODO → regresar a listado
+      navigate("/personal");
     } catch (error) {
       console.error("❌ Error guardando empleado", error);
       handleBackendErrors(error);
@@ -150,8 +164,6 @@ export const AltaPersonalPage = () => {
       <h1 className="text-2xl font-bold text-white">
         {isEdit ? "Editar Personal" : "Alta Personal"}
       </h1>
-
-      <Stepper currentStep={1} empleadoId={empleadoId} />
 
       {errors.root && (
         <div className="bg-red-100 text-red-700 p-3 rounded">
@@ -213,20 +225,12 @@ export const AltaPersonalPage = () => {
               placeholder="RFC"
               className={inputStyle}
             />
-            {errors.rfc && (
-              <p className="text-red-400 text-xs">{errors.rfc.message}</p>
-            )}
 
             <input
               {...register("telefono", { required: true })}
               placeholder="Teléfono"
               className={inputStyle}
             />
-            {errors.telefono && (
-              <p className="text-red-400 text-xs">
-                {errors.telefono.message}
-              </p>
-            )}
 
             <input
               {...register("email", { required: true })}
@@ -249,26 +253,61 @@ export const AltaPersonalPage = () => {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <select
-              {...register("tipoRecurso", { required: true })}
-              className={inputStyle}
-            >
-              <option value="">Tipo recurso</option>
-              <option value="tecnico">Técnico</option>
-              <option value="administrativo">Administrativo</option>
-            </select>
+            {/* PERFIL */}
+            <div className="md:col-span-2">
+              <label className={labelStyle}>Perfil</label>
+              <select
+                {...register("perfilId", {
+                  required: true,
+                  valueAsNumber: true,
+                })}
+                className={inputStyle}
+              >
+                <option value="">Seleccionar perfil</option>
+                {perfiles.map((perfil) => (
+                  <option key={perfil.id} value={perfil.id}>
+                    {perfil.nombre}
+                  </option>
+                ))}
+              </select>
 
-            <input
-              {...register("nss", { required: true })}
-              placeholder="NSS"
-              className={inputStyle}
-            />
+              {/* 🔥 ERROR FUERA DEL SELECT */}
+              {errors.perfilId && (
+                <p className="text-red-400 text-xs mt-1">
+                  El perfil es requerido
+                </p>
+              )}
+            </div>
 
-            <input
-              {...register("usuarioModificacion", { required: true })}
-              placeholder="Usuario modificación"
-              className={inputStyle}
-            />
+            {/* TIPO RECURSO */}
+            <div>
+              <select
+                {...register("tipoRecurso", { required: true })}
+                className={inputStyle}
+              >
+                <option value="">Tipo recurso</option>
+                <option value="tecnico">Técnico</option>
+                <option value="administrativo">Administrativo</option>
+              </select>
+            </div>
+
+            {/* NSS */}
+            <div>
+              <input
+                {...register("nss", { required: true })}
+                placeholder="NSS"
+                className={inputStyle}
+              />
+            </div>
+
+            {/* USUARIO MODIFICACIÓN */}
+            <div className="md:col-span-2">
+              <input
+                {...register("usuarioModificacion", { required: true })}
+                placeholder="Usuario modificación"
+                className={inputStyle}
+              />
+            </div>
           </div>
         </div>
 

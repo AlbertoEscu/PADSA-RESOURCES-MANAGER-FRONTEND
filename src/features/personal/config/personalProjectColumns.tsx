@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { PersonalSkillsDto } from "../types/personal.types";
+import type { PersonalProjectDto } from "../types/personal.types";
 import type { Column } from "../../../shared/components/ui/DataTable";
 import { Pencil } from "lucide-react";
 
@@ -8,7 +8,7 @@ export const usePersonalProjectColumns = () => {
       const navigate = useNavigate();
 
 
-  const columns: Column<PersonalSkillsDto>[] = [
+  const columns: Column<PersonalProjectDto>[] = [
 
     {
       key: "numeroEmpleado",
@@ -23,28 +23,28 @@ export const usePersonalProjectColumns = () => {
     },
 
     {
-      key: "lenguajesProgramacion",
-      label: "Lenguajes"
+      key: "compañia",
+      label: "Compañía"
     },
 
     {
-      key: "basesDatos",
-      label: "Bases de Datos"
+      key: "perfil",
+      label: "Perfil"
     },
 
     {
-      key: "frameworks",
-      label: "Frameworks"
+      key: "idproyecto",
+      label: "idProyecto"
     },
 
     {
-      key: "cursos",
-      label: "Cursos"
+      key: "idcliente",
+      label: "idCliente"
     },
 
     {
-      key: "certificaciones",
-      label: "Certificaciones"
+      key: "nombreProyecto",
+      label: "Nombre Proyecto"
     },
 
     {

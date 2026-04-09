@@ -25,6 +25,7 @@ export const usePersonalColumns = () => {
       label: "Nombre Completo",
       filterable: true,
     },
+    { key: "perfil", label: "Perfil" },
 
     { key: "curp", label: "CURP" },
     { key: "rfc", label: "RFC" },

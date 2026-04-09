@@ -62,4 +62,4 @@ export const companyColumns = (onEdit: (company: CompanyRow) => void): Column<Co
       </button>
     ),
   },
-];
+];  

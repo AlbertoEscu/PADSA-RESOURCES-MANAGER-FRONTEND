@@ -16,6 +16,7 @@ export interface CompaniaResponse {
   rfc: string;
   direccionFiscal: string;
   estatus: CompanyStatusDB;
+  fechaAlta: string; // 👈 NUEVO
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }

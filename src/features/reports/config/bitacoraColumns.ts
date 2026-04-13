@@ -7,7 +7,7 @@ export const bitacoraColumns: Column<BitacoraMensualResponse>[] = [
   { key: "rfcEmpleado", label: "RFC" },
   { key: "emailEmpleado", label: "Email" },
   { key: "idCompania", label: "ID Compañía" },
-  { key: "nombreCompania", label: "Compañía" },
+  { key: "nombreCompania", label: "Compañía", filterable: true },
   { key: "idProyecto", label: "ID Proyecto" },
   { key: "nombreProyecto", label: "Proyecto" },
   { key: "idJira", label: "ID Jira" },

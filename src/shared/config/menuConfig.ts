@@ -324,4 +324,53 @@ export const menuConfig: ModuleMenu[] = [
       },
     ],
   },
+   /**
+   * ==========================================
+   * MÓDULO CLIENTES
+   * ==========================================
+   */
+
+  {
+    basePath: "/clients",
+    title: "Clientes",
+    items: [
+      {
+        label: "Clientes",
+        icon: Building2,
+        children: [
+          {
+            label: "Datos Generales",
+            path: "/clients",
+          },
+        ],
+      },
+
+      // ✅ WIZARD (oculto pero usable)
+      {
+        label: "Alta Cliente",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Datos Generales",
+            path: "/clients/new",
+          },
+        ],
+      },
+
+      // ✅ SOLO EDIT oculto (opcional)
+      {
+        label: "Editar Cliente",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Editar",
+            path: "/clients/edit/",
+            hidden: true,
+          },
+        ],
+      },
+    ],
+  },
 ];

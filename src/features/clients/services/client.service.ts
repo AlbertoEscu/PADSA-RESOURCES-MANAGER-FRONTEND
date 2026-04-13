@@ -18,7 +18,7 @@ export const clientService = {
     // 🔥 MAPEO BACK -> FRONT
     const mapped: ClientDto[] = backendData.content.map((item: any) => ({
       id: item.idCliente,
-      numeroCliente: String(item.idCliente), // ⚠️ ajustar si luego tienes numero real
+      numeroCliente: String(item.idCliente),
       nombreCliente: item.nombreCliente,
       razonSocial: item.razonSocial,
       rfc: item.rfc,
@@ -26,6 +26,7 @@ export const clientService = {
       correoElectronico: item.email,
       telefono: String(item.telefono),
       estatus: item.estatus,
+      fechaAlta: item.fechaAlta, // 👈 AQUÍ
       fechaUltimaModificacion: item.fechaUltimaModificacion,
       usuarioModificacion: item.usuarioModificacion,
     }));
@@ -61,6 +62,7 @@ export const clientService = {
       correoElectronico: item.email,
       telefono: item.telefono,
       estatus: item.estatus,
+      fechaAlta: item.fechaAlta, // 👈 agregar
       fechaUltimaModificacion: item.fechaUltimaModificacion,
       usuarioModificacion: item.usuarioModificacion,
     };
@@ -90,6 +92,7 @@ export const clientService = {
       correoElectronico: item.email,
       telefono: item.telefono,
       estatus: item.estatus,
+      fechaAlta: item.fechaAlta, // 👈 agregar
       fechaUltimaModificacion: item.fechaUltimaModificacion,
       usuarioModificacion: item.usuarioModificacion,
     };

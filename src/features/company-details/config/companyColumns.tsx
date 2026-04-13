@@ -2,7 +2,9 @@ import type { Column } from "../../../shared/components/ui/DataTable";
 import type { CompanyRow } from "../pages/CompanyDetailsPage";
 import { Pencil } from "lucide-react";
 
-export const companyColumns = (onEdit: (company: CompanyRow) => void): Column<CompanyRow>[] => [
+export const companyColumns = (
+  onEdit: (company: CompanyRow) => void,
+): Column<CompanyRow>[] => [
   {
     key: "nombreCompania",
     label: "Nombre compañía",
@@ -39,6 +41,12 @@ export const companyColumns = (onEdit: (company: CompanyRow) => void): Column<Co
     ),
   },
   {
+    key: "fechaAlta",
+    label: "Fecha Alta",
+    render: (row) =>
+      row.fechaAlta ? new Date(row.fechaAlta).toLocaleDateString("es-MX") : "-",
+  },
+  {
     key: "fechaUltimaModificacion",
     label: "Fecha modificación",
     sortable: true,
@@ -62,4 +70,4 @@ export const companyColumns = (onEdit: (company: CompanyRow) => void): Column<Co
       </button>
     ),
   },
-];  
+];

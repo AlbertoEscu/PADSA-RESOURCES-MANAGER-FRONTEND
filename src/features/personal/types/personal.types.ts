@@ -43,3 +43,22 @@ export interface PersonalProjectDto {
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }
+
+export interface EmpleadoCatalogoDto {
+  idEmpleado: number;
+  nombreCompleto: string;
+  idPerfil?: number;
+}
+
+export interface Option {
+  value: number;
+  label: string;
+  extra?: {
+    idPerfil?: number;
+  };
+}
+
+export interface ProyectoCatalogoDto {
+  idProyecto: number;
+  nombreProyecto: string;
+}

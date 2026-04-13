@@ -65,6 +65,11 @@ export const clientColumns = (
     ),
   },
   {
+    key: "fechaAlta",
+    label: "Fecha alta",
+    sortable: true,
+  },
+  {
     key: "fechaUltimaModificacion",
     label: "Fecha modificación",
     sortable: true,

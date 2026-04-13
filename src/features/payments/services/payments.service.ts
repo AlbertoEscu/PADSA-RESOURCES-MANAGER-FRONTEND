@@ -27,4 +27,22 @@ export const paymentsService = {
     );
     return { ...response.data, id: response.data.idPago };
   },
+ async calcularPagosProyecto(
+  idProyecto: number,
+  mes: number,
+  anio: number
+): Promise<PaymentDto[]> {
+  const response = await axiosInstance.post<PaymentDto[]>(
+    `/pagos/proyecto/${idProyecto}/calcular-todos`,
+    null,
+    {
+      params: { mes, anio },
+      headers: {
+        "X-Usuario-Modificacion": "admin",
+      },
+    }
+  );
+
+  return response.data.map((p) => ({ ...p, id: p.idPago }));
+},
 };

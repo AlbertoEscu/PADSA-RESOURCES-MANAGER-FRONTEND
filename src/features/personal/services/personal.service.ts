@@ -1,8 +1,11 @@
 import { axiosInstance } from "../../../api/axiosInstance";
 
 import type {
+  EmpleadoCatalogoDto,
+  Option,
   PersonalDto,
   PersonalProjectDto,
+  ProyectoCatalogoDto,
 } from "../types/personal.types";
 
 /**
@@ -90,7 +93,9 @@ const mapEmpleadoToPersonal = (emp: EmpleadoResponse): PersonalDto => ({
   usuarioModificacion: emp.usuarioModificacion,
 });
 
-const mapPersonalProject = (item: PersonalProjectResponse): PersonalProjectDto => ({
+const mapPersonalProject = (
+  item: PersonalProjectResponse,
+): PersonalProjectDto => ({
   id: item.numeroEmpleado,
   numeroEmpleado: String(item.numeroEmpleado),
   nombreCompleto: item.nombreCompleto,
@@ -129,9 +134,9 @@ export const personalService = {
     );
 
     return {
-  ...mapEmpleadoToPersonal(data),
-  perfil: data.perfil, // 🔥 importante para el form
-};
+      ...mapEmpleadoToPersonal(data),
+      perfil: data.perfil, // 🔥 importante para el form
+    };
   },
 
   async create(payload: any) {
@@ -143,12 +148,20 @@ export const personalService = {
   },
 
   async getPersonalProjects(): Promise<PersonalProjectDto[]> {
-  const data = await handleRequest<PersonalProjectResponse[]>(
-    axiosInstance.get("/asignaciones/empleados-con-proyectos"),
-  );
+    const data = await handleRequest<PersonalProjectResponse[]>(
+      axiosInstance.get("/asignaciones/empleados-con-proyectos"),
+    );
 
-  return data.map(mapPersonalProject);
-},
+    return data.map(mapPersonalProject);
+  },
+
+  async getCatalogoEmpleados(): Promise<EmpleadoCatalogoDto[]> {
+    const data = await handleRequest<EmpleadoCatalogoDto[]>(
+      axiosInstance.get("/empleados/catalogo"),
+    );
+
+    return data;
+  },
 
   /**
    * ==========================================
@@ -167,6 +180,31 @@ export const personalService = {
       id: item.idPerfil,
       nombre: item.nombrePerfil,
     }));
+  },
+
+  /**
+   * ==========================================
+   * 🧠 PROYECTOS
+   * ==========================================
+   */
+  async getCatalogoProyectos(): Promise<ProyectoCatalogoDto[]> {
+    const data = await handleRequest<ProyectoCatalogoDto[]>(
+      axiosInstance.get("/proyectos/catalogo"),
+    );
+
+    return data;
+  },
+  async asignarEmpleadosAProyecto(payload: {
+    idProyecto: number;
+    idEmpleados: number[];
+  }) {
+    return await handleRequest(
+      axiosInstance.post("/asignaciones/asignar-multiple", payload, {
+        headers: {
+          usuario: "admin", // ⚠️ aquí mete el usuario real después
+        },
+      }),
+    );
   },
 
   /**
@@ -190,5 +228,25 @@ export const personalService = {
       fechaAlta: personal.fechaAlta,
       estatus: personal.estatus,
     };
+  },
+
+  async getCatalogoEmpleadosOptions(): Promise<Option[]> {
+    const data = await this.getCatalogoEmpleados();
+
+    return data.map((emp) => ({
+      value: emp.idEmpleado,
+      label: emp.nombreCompleto,
+      extra: {
+        idPerfil: emp.idPerfil,
+      },
+    }));
+  },
+  async getCatalogoProyectosOptions(): Promise<Option[]> {
+    const data = await this.getCatalogoProyectos();
+
+    return data.map((proj) => ({
+      value: proj.idProyecto,
+      label: proj.nombreProyecto,
+    }));
   },
 };

@@ -24,7 +24,9 @@ export const EditClientPage = () => {
     correoElectronico: "",
     telefono: "",
     estatus: "Activo",
+    fechaAlta: "",
   });
+
   // 🔥 LOAD DATA FROM STATE (EDIT)
   useEffect(() => {
     if (isEdit && location.state) {
@@ -40,12 +42,23 @@ export const EditClientPage = () => {
         correoElectronico: client.correoElectronico,
         telefono: client.telefono,
         estatus: client.estatus,
+        fechaAlta: client.fechaAlta,
       });
     }
   }, [isEdit, location.state]);
 
-  // 🧠 HANDLE CHANGE
-  const handleChange = (field: keyof ClientDto, value: string) => {
+  // 🔥 SET FECHA ALTA EN CREATE (solo visual)
+  useEffect(() => {
+    if (!isEdit) {
+      setForm((prev) => ({
+        ...prev,
+        fechaAlta: new Date().toISOString(),
+      }));
+    }
+  }, [isEdit]);
+
+  // 🧠 HANDLE CHANGE (corregido)
+  const handleChange = (field: keyof ClientForm, value: string) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,
@@ -55,7 +68,6 @@ export const EditClientPage = () => {
   // 💾 SAVE
   const handleSubmit = async () => {
     try {
-      // 🔥 VALIDACIONES
       if (!form.nombreCliente) return alert("Nombre requerido");
       if (!form.razonSocial) return alert("Razón social requerida");
       if (!form.rfc) return alert("RFC requerido");
@@ -156,13 +168,27 @@ export const EditClientPage = () => {
           <label className="text-sm text-padsa-text-secondary">Estatus</label>
           <select
             value={form.estatus}
-            onChange={(e) => handleChange("estatus", e.target.value)}
+            onChange={(e) =>
+              handleChange("estatus", e.target.value as "Activo" | "Inactivo")
+            }
             className="w-full mt-1 px-3 py-2 bg-padsa-surface rounded-lg border border-padsa-border"
           >
-            <option value="ACTIVO">ACTIVO</option>
-            <option value="INACTIVO">INACTIVO</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
           </select>
         </div>
+
+        {/* 🔥 FECHA ALTA */}
+        <Input
+          label="Fecha de Alta"
+          value={
+            form.fechaAlta
+              ? new Date(form.fechaAlta).toLocaleDateString("es-MX")
+              : ""
+          }
+          disabled
+          onChange={() => {}}
+        />
       </div>
 
       {/* ACTION */}

@@ -27,12 +27,17 @@ interface Asignacion {
   idProyecto: number;
   nombreProyecto: string;
 }
+interface EmpleadoUI {
+  id: number;
+  nombre: string;
+  idPerfil?: number;
+}
 
 export const AltaPersonalProjectPage = () => {
   const navigate = useNavigate();
 
   const [proyectos, setProyectos] = useState<ProyectoOption[]>([]);
-  const [empleados, setEmpleados] = useState<EmpleadoOption[]>([]);
+  const [empleados, setEmpleados] = useState<EmpleadoUI[]>([]);
   const [perfiles, setPerfiles] = useState<PerfilOption[]>([]);
 
   const [selectedProyecto, setSelectedProyecto] = useState<number | "">("");
@@ -53,24 +58,32 @@ export const AltaPersonalProjectPage = () => {
   const loadInitialData = async () => {
     try {
       // 🔥 EMPLEADOS
-      const empleadosData = await personalService.getPersonal();
+      const empleadosOptions =
+        await personalService.getCatalogoEmpleadosOptions();
+
       setEmpleados(
-        empleadosData.map((e) => ({
-          id: e.id,
-          nombre: e.nombreCompleto,
-          perfil: e.perfil,
-        }))
+        empleadosOptions.map((e) => ({
+          id: e.value,
+          nombre: e.label,
+          idPerfil: e.extra?.idPerfil, // 👈 clave
+        })),
       );
 
       // 🔥 PERFILES
       const perfilesData = await personalService.getPerfiles();
       setPerfiles(perfilesData);
 
-      // 🔥 PROYECTOS (MOCK por ahora)
-      setProyectos([
-        { id: 1, nombre: "Proyecto A" },
-        { id: 2, nombre: "Proyecto B" },
-      ]);
+      // 🔥 PROYECTOS
+      // 🔥 PROYECTOS
+      const proyectosOptions =
+        await personalService.getCatalogoProyectosOptions();
+
+      setProyectos(
+        proyectosOptions.map((p) => ({
+          id: p.value,
+          nombre: p.label,
+        })),
+      );
     } catch (error) {
       console.error(error);
     }
@@ -82,9 +95,7 @@ export const AltaPersonalProjectPage = () => {
    * ==========================================
    */
   const empleadosFiltrados = selectedPerfil
-    ? empleados.filter(
-        (e) => e.perfil === perfiles.find(p => p.id === selectedPerfil)?.nombre
-      )
+    ? empleados.filter((e) => e.idPerfil === selectedPerfil)
     : empleados;
 
   /**
@@ -95,21 +106,19 @@ export const AltaPersonalProjectPage = () => {
   const handleAgregar = () => {
     if (!selectedEmpleado || !selectedProyecto) return;
 
-    const empleado = empleados.find(e => e.id === selectedEmpleado);
-    const proyecto = proyectos.find(p => p.id === selectedProyecto);
+    const empleado = empleados.find((e) => e.id === selectedEmpleado);
+    const proyecto = proyectos.find((p) => p.id === selectedProyecto);
 
     if (!empleado || !proyecto) return;
 
     // evitar duplicados
     const exists = asignaciones.some(
-      a =>
-        a.idEmpleado === empleado.id &&
-        a.idProyecto === proyecto.id
+      (a) => a.idEmpleado === empleado.id && a.idProyecto === proyecto.id,
     );
 
     if (exists) return;
 
-    setAsignaciones(prev => [
+    setAsignaciones((prev) => [
       ...prev,
       {
         idEmpleado: empleado.id,
@@ -126,7 +135,7 @@ export const AltaPersonalProjectPage = () => {
    * ==========================================
    */
   const handleEliminar = (index: number) => {
-    setAsignaciones(prev => prev.filter((_, i) => i !== index));
+    setAsignaciones((prev) => prev.filter((_, i) => i !== index));
   };
 
   /**
@@ -137,15 +146,18 @@ export const AltaPersonalProjectPage = () => {
   const handleGuardar = async () => {
     if (asignaciones.length === 0) return;
 
-    const payload = asignaciones.map(a => ({
-      idEmpleado: a.idEmpleado,
-      idProyecto: a.idProyecto,
-    }));
+    const idProyecto = asignaciones[0].idProyecto;
+
+    const idEmpleados = asignaciones.map((a) => a.idEmpleado);
+
+    const payload = {
+      idProyecto,
+      idEmpleados,
+    };
 
     console.log("🔥 PAYLOAD:", payload);
 
-    // 👉 futuro
-    // await personalService.assignProjects(payload);
+    await personalService.asignarEmpleadosAProyecto(payload);
 
     navigate("/personal/projects");
   };
@@ -161,15 +173,11 @@ export const AltaPersonalProjectPage = () => {
       animate={{ opacity: 1, y: 0 }}
       className="p-8 space-y-6"
     >
-      <h1 className="text-2xl font-bold text-white">
-        Nueva asignación
-      </h1>
+      <h1 className="text-2xl font-bold text-white">Nueva asignación</h1>
 
       <div className="bg-padsa-surface border border-padsa-border rounded-2xl p-6 space-y-6">
-
         {/* 🔥 COMBOS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
           {/* Proyecto */}
           <div>
             <label className={labelStyle}>Proyecto</label>
@@ -179,7 +187,7 @@ export const AltaPersonalProjectPage = () => {
               className={inputStyle}
             >
               <option value="">Selecciona</option>
-              {proyectos.map(p => (
+              {proyectos.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nombre}
                 </option>
@@ -196,7 +204,7 @@ export const AltaPersonalProjectPage = () => {
               className={inputStyle}
             >
               <option value="">Todos</option>
-              {perfiles.map(p => (
+              {perfiles.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nombre}
                 </option>
@@ -213,7 +221,7 @@ export const AltaPersonalProjectPage = () => {
               className={inputStyle}
             >
               <option value="">Selecciona</option>
-              {empleadosFiltrados.map(e => (
+              {empleadosFiltrados.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.nombre}
                 </option>

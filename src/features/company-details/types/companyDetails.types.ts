@@ -10,6 +10,7 @@ export interface CompanyDto {
   rfc: string;
   direccionFiscal: string;
   estatus: CompanyStatus; // UI
+  fechaAlta: string; // 👈 NUEVO
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }

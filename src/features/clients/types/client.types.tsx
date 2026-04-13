@@ -8,6 +8,7 @@ export interface ClientDto {
   correoElectronico: string;
   telefono: string;
   estatus: "Activo" | "Inactivo";
+  fechaAlta: string; // 👈 NUEVO
   fechaUltimaModificacion: string;
   usuarioModificacion: string;
 }
@@ -23,4 +24,5 @@ export type ClientForm = {
   correoElectronico: string;
   telefono: string;
   estatus: "Activo" | "Inactivo";
+  fechaAlta?: string; // 👈 NUEVO
 };

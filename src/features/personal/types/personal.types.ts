@@ -1,3 +1,30 @@
+export interface PersonalProfileDto {
+  id: number;
+  idPerfil: number;
+  numeroEmpleado: string;
+  nombreCompleto: string;
+  perfil: string;
+  nivel: string;
+  estatus: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  fechaUltimaModificacion: string;
+  usuarioModificacion: string;
+}
+
+export interface PersonalSkillsDto {
+  id: number;
+  idSkill: number;
+  numeroEmpleado: string;
+  nombreCompleto: string;
+  lenguajesProgramacion?: string;
+  basesDatos?: string;
+  frameworks?: string;
+  cursos?: string;
+  certificaciones?: string;
+  estatus: string;
+  fechaUltimaModificacion: string;
+}
+
 export interface PersonalDto {
   id: number;
 

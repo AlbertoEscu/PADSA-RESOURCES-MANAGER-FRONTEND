@@ -4,7 +4,9 @@ import type {
   EmpleadoCatalogoDto,
   Option,
   PersonalDto,
+  PersonalProfileDto,
   PersonalProjectDto,
+  PersonalSkillsDto,
   ProyectoCatalogoDto,
 } from "../types/personal.types";
 
@@ -43,6 +45,28 @@ interface PageResponse<T> {
   content: T[];
   totalElements: number;
   totalPages: number;
+}
+
+interface PerfilBackendResponse {
+  idPerfil: number;
+  nombrePerfil: string;
+  descripcion?: string;
+  estatus: string;
+  createdAt: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
+interface NivelPerfilBackendResponse {
+  idNivel: number;
+  idPerfil: number;
+  nombrePerfil: string;
+  nombreNivel: string;
+  descripcion?: string;
+  estatus: string;
+  createdAt: string;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 interface PersonalProjectResponse {
@@ -170,15 +194,58 @@ export const personalService = {
    */
 
   async getPerfiles() {
-    const data = await handleRequest<PageResponse<any>>(
+    const data = await handleRequest<PageResponse<PerfilBackendResponse>>(
       axiosInstance.get("/perfiles", {
         params: { page: 0, size: 100 },
       }),
     );
 
-    return data.content.map((item: any) => ({
+    return data.content.map((item) => ({
       id: item.idPerfil,
       nombre: item.nombrePerfil,
+    }));
+  },
+
+  async getProfiles(): Promise<PersonalProfileDto[]> {
+    const data = await handleRequest<PageResponse<PerfilBackendResponse>>(
+      axiosInstance.get("/perfiles/todos", {
+        params: { page: 0, size: 100 },
+      }),
+    );
+
+    return data.content.map((item) => ({
+      id: Number(item.idPerfil),
+      idPerfil: Number(item.idPerfil),
+      numeroEmpleado: String(item.idPerfil),
+      nombreCompleto: item.nombrePerfil,
+      perfil: item.nombrePerfil,
+      nivel: "-",
+      estatus: item.estatus === "A" ? "ACTIVO" : "INACTIVO",
+      status: item.estatus === "A" ? "ACTIVE" : "INACTIVE",
+      fechaUltimaModificacion: item.updatedAt,
+      usuarioModificacion: item.updatedBy,
+    }));
+  },
+
+  async getSkills(): Promise<PersonalSkillsDto[]> {
+    const data = await handleRequest<PageResponse<NivelPerfilBackendResponse>>(
+      axiosInstance.get("/niveles-perfil", {
+        params: { page: 0, size: 100 },
+      }),
+    );
+
+    return data.content.map((item) => ({
+      id: Number(item.idNivel),
+      idSkill: Number(item.idNivel),
+      numeroEmpleado: String(item.idPerfil),
+      nombreCompleto: item.nombrePerfil,
+      lenguajesProgramacion: undefined,
+      basesDatos: undefined,
+      frameworks: undefined,
+      cursos: undefined,
+      certificaciones: item.descripcion,
+      estatus: item.estatus === "A" ? "ACTIVO" : "INACTIVO",
+      fechaUltimaModificacion: item.updatedAt,
     }));
   },
 

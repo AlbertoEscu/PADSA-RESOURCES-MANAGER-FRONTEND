@@ -33,6 +33,21 @@ export const usePersonalProfileColumns = () => {
       ),
     },
     {
+      key: "status",
+      label: "Estado",
+      render: (row) => (
+        <span
+          className={`px-2 py-1 rounded text-xs ${
+            row.status === "ACTIVE"
+              ? "bg-green-500/20 text-green-300"
+              : "bg-red-500/20 text-red-300"
+          }`}
+        >
+          {row.status === "ACTIVE" ? "Activo" : "Inactivo"}
+        </span>
+      ),
+    },
+    {
       key: "estatus",
       label: "Estatus",
       render: (row) => (

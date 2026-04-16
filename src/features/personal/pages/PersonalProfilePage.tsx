@@ -12,7 +12,7 @@ import type {
   PersonalSkillsDto,
 } from "../types/personal.types";
 
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, EyeOff, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const PersonalProfilePage = () => {
@@ -37,6 +37,8 @@ export const PersonalProfilePage = () => {
 
   const [profileSearch, setProfileSearch] = useState("");
   const [skillsSearch, setSkillsSearch] = useState("");
+
+  const [showInactive, setShowInactive] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -86,15 +88,35 @@ export const PersonalProfilePage = () => {
           </button>
         </div>
 
-        <h2 className="text-xl font-semibold text-white">Perfil</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-white">Perfil</h2>
+
+          <button
+            onClick={() => setShowInactive((prev) => !prev)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition ${
+              showInactive
+                ? "bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                : "bg-padsa-surface-light text-padsa-text-secondary hover:bg-padsa-surface-light/70"
+            }`}
+          >
+            {showInactive ? <EyeOff size={14} /> : <Eye size={14} />}
+            {showInactive ? "Ocultar inactivos" : "Mostrar inactivos"}
+          </button>
+        </div>
 
         <DataTable
-          data={profiles}
+          data={profiles.filter(
+            (p) => showInactive || p.status === "ACTIVE",
+          )}
           columns={profileColumns}
           loading={loadingProfiles}
           page={profilePage}
           pageSize={pageSize}
-          total={profiles.length}
+          total={
+            showInactive
+              ? profiles.length
+              : profiles.filter((p) => p.status === "ACTIVE").length
+          }
           filters={profileFilters}
           globalSearch={profileSearch}
           onGlobalSearchChange={setProfileSearch}

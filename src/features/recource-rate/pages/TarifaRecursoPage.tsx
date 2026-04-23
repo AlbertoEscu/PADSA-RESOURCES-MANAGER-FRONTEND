@@ -4,53 +4,77 @@ import { useNavigate } from "react-router-dom";
 
 import { DataTable } from "../../../shared/components/ui/DataTable";
 import { useTarifaRecursoColumns } from "../config/tarifaRecursoColumns";
-import type { TarifaRecursoDto } from "../types/tarifaRecurso.types";
+import type { TarifaResponse } from "../types/tarifaRecurso.types";
+import { tarifaService } from "../services/tarifaRecurso.service";
 
-import { ArrowLeft, Plus, Pencil } from "lucide-react";
-import { tarifaRecursoService } from "../services/tarifaRecurso.service";
-
-// Extendemos el tipo para DataTable
-type DataTableRow = TarifaRecursoDto & { id: number };
+import { Plus } from "lucide-react";
+import logo from "../../../assets/logo.png";
 
 export const TarifaRecursoPage = () => {
   const navigate = useNavigate();
 
-  const [data, setData] = useState<DataTableRow[]>([]);
+  const [data, setData] = useState<TarifaResponse[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(5);
   const [totalElements, setTotalElements] = useState(0);
 
   const [globalSearch, setGlobalSearch] = useState("");
-  const [filters, setFilters] = useState<Partial<Record<keyof DataTableRow, string>>>({});
+  const [filters, setFilters] = useState<
+    Partial<Record<keyof TarifaResponse, string>>
+  >({});
+
   const columns = useTarifaRecursoColumns();
 
-  // Cambiar filtros
-  const handleFilterChange = (field: keyof DataTableRow, value: string) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+  const handleFilterChange = (field: keyof TarifaResponse, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  // 🔥 Fetch de datos real con backend
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Obtener datos con filtros, búsqueda y paginación
-        const result = await tarifaRecursoService.getAll(
-          page - 1, // backend 0-index
-          pageSize,
-          globalSearch,
-          filters as any // cast necesario para enviar solo las keys correctas al backend
-        );
+        const result = await tarifaService.getAll();
 
-        // Mapear idTarifas → id para DataTable
-        const mappedData: DataTableRow[] = result.content.map(row => ({
-          ...row,
-          id: row.idTarifas,
-        }));
+        let filtered = result;
 
-        setData(mappedData);
-        setTotalElements(result.totalElements);
+        // 🔎 búsqueda global (mejorada)
+        if (globalSearch) {
+          const searchLower = globalSearch.toLowerCase();
+          filtered = result.filter((item) =>
+            [
+              item.clave,
+              item.proyectoClave,
+              item.empleadoClave,
+              item.equipoAlianza,
+            ]
+              .filter(Boolean)
+              .some((value) =>
+                String(value).toLowerCase().includes(searchLower)
+              )
+          );
+        }
+
+        // 🔎 filtros por columna
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) {
+            filtered = filtered.filter((item) =>
+              String(item[key as keyof TarifaResponse] ?? "")
+                .toLowerCase()
+                .includes(value.toLowerCase())
+            );
+          }
+        });
+
+        // 📄 paginación
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+
+        setData(filtered.slice(start, end));
+        setTotalElements(filtered.length);
+      } catch (error) {
+        console.error("Error cargando tarifas:", error);
       } finally {
         setLoading(false);
       }
@@ -59,21 +83,32 @@ export const TarifaRecursoPage = () => {
     fetchData();
   }, [page, pageSize, globalSearch, filters]);
 
-  // Reset page si cambian filtros o búsqueda
-  useEffect(() => setPage(1), [globalSearch, filters]);
+  useEffect(() => {
+    setPage(1);
+  }, [globalSearch, filters]);
 
   return (
-    <motion.div className="space-y-8" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+    <motion.div
+      className="space-y-8"
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Tarifas por Recurso</h1>
+        <h1 className="text-2xl font-bold text-white">
+          Tarifas por Recurso
+        </h1>
+
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70"
           >
-            <ArrowLeft size={16} /> Volver
+            <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
+            Inicio
           </button>
+
           <button
             onClick={() => navigate("/rates/new")}
             className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"

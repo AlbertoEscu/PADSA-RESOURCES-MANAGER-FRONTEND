@@ -1,19 +1,53 @@
-export interface TarifaRecursoDto {
-  idTarifas: number;
-  idProyecto: number;
-  idRecurso: number;
-  tarifaHora: number;
+export interface TarifaRequest {
+  clave: string;
+  proyectoId: number;
+  empleadoId: number;
+
+  tarifaHora?: number;
   tarifaAlianza?: number;
   tarifaAxity?: number;
-  equipoAlianza: boolean;
+  nivelDescuento?: number;
+
+  equipoAlianza?: string;
   fechaAsignacionEquipo?: string;
   fechaArrendamiento?: string;
-  nivelDescuento?: number;
+
   montoEstimadoCobro?: number;
   montoEstimadoCobro2?: number;
   montoEstimadoCobro3?: number;
   montoRealFacturar?: number;
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
+}
+
+export interface TarifaResponse {
+  id: number;
+  clave: string;
+
+  proyectoId: number;
+  proyectoClave: string;
+
+  empleadoId: number;
+  empleadoClave: string;
+
+  tarifaHora?: number;
+  tarifaAlianza?: number;
+  tarifaAxity?: number;
+
+  nivelDescuento?: number;
+
+  equipoAlianza?: string;
+
+  fechaAsignacionEquipo?: string;
+  fechaArrendamiento?: string;
+
+  montoEstimadoCobro?: number;
+  montoEstimadoCobro2?: number;
+  montoEstimadoCobro3?: number;
+  montoRealFacturar?: number;
+
   estatus: string;
+
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
 }

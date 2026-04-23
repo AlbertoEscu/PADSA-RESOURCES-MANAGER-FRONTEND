@@ -1,65 +1,128 @@
-import { useState, useEffect } from "react";
-import type { ReactNode } from "react";
-import type { User } from "../types/auth.types";
-import { setupInterceptors } from "../../../app/api/setupInterceptors";
-import { loginRequest } from "../services/auth.service";
-import { AuthContext } from "./AuthContext";
+import { useState, useEffect, type ReactNode } from "react";
+import { AuthContext, type User } from "./AuthContext";
+import { setupInterceptors } from "../../../api/setupInterceptors";
+import { parseJwt, isTokenExpired } from "../../../shared/utils/jwt";
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+interface Props {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: Props) => {
+
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
+  const isAuthenticated = !!token;
+
+  let logoutTimer: number | undefined;
+
+  // 🔹 RESTORE SESSION
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+
     const storedToken = localStorage.getItem("token");
+    const storedNombre = localStorage.getItem("nombre");
+    const storedRol = localStorage.getItem("rol");
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+    if (storedToken && !isTokenExpired(storedToken)) {
+
+      setToken(storedToken);
+
+      setUser({
+        nombre: storedNombre || "",
+        rol: storedRol || "",
+        username: parseJwt(storedToken)?.sub || "",
+      });
+
+      scheduleAutoLogout(storedToken);
+
+    } else {
+
+      logout(false);
+
     }
 
-    setIsInitializing(false);
-  }, []);
-
-  const login = async (username: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await loginRequest({ username, password });
-
-      localStorage.setItem("token", response.token);
-
-      const userData: User = {
-        id: 1,
-        username: response.username,
-        name: response.username,
-        role: "ADMIN",
-      };
-
-      localStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
-    } catch (err) {
-      setError("Usuario o contraseña incorrectos");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-  };
-
-  useEffect(() => {
     setupInterceptors(logout);
+
+    setLoading(false);
+
   }, []);
+
+  // 🔹 LOGIN
+  const login = (jwtToken: string, nombre?: string, rol?: string) => {
+
+    localStorage.setItem("token", jwtToken);
+
+    if (nombre) localStorage.setItem("nombre", nombre);
+    if (rol) localStorage.setItem("rol", rol);
+
+    setToken(jwtToken);
+
+    setUser({
+      nombre: nombre || "",
+      rol: rol || "",
+      username: parseJwt(jwtToken)?.sub || "",
+    });
+
+    setSessionExpired(false);
+
+    scheduleAutoLogout(jwtToken);
+
+  };
+
+  // 🔹 LOGOUT
+  const logout = (expired = false) => {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("nombre");
+    localStorage.removeItem("rol");
+
+    setToken(null);
+    setUser(null);
+
+    if (expired) setSessionExpired(true);
+
+    if (logoutTimer) clearTimeout(logoutTimer);
+
+  };
+
+  const clearSessionExpired = () => {
+    setSessionExpired(false);
+  };
+
+  // 🔹 AUTO LOGOUT
+  function scheduleAutoLogout(token: string) {
+
+    const payload = parseJwt(token);
+    if (!payload) return;
+
+    const expiresIn = payload.exp * 1000 - Date.now();
+
+    if (expiresIn <= 0) {
+      logout(true);
+      return;
+    }
+
+    logoutTimer = window.setTimeout(
+      () => logout(true),
+      expiresIn
+    );
+
+  }
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, loading, error, isInitializing }}
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        isAuthenticated,
+        loading,
+        sessionExpired,
+        clearSessionExpired
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,28 +1,25 @@
 export interface ClientDto {
   id: number;
-  numeroCliente: string;
-  nombreCliente: string;
+  clave: string;
+  nombre: string;
   razonSocial: string;
   rfc: string;
   domicilioFiscal: string;
-  correoElectronico: string;
+  email: string;
   telefono: string;
-  estatus: "Activo" | "Inactivo";
-  fechaAlta: string; // 👈 NUEVO
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
+  estatus: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string;
 }
 
-
 export type ClientForm = {
-  id?: number;
-  numeroCliente: string;
-  nombreCliente: string;
-  razonSocial: string;
-  rfc: string;
-  domicilioFiscal: string;
-  correoElectronico: string;
-  telefono: string;
-  estatus: "Activo" | "Inactivo";
-  fechaAlta?: string; // 👈 NUEVO
+  clave: string;
+  nombre: string;
+  razonSocial?: string;
+  rfc?: string;
+  domicilioFiscal?: string;
+  email?: string;
+  telefono?: string;
 };

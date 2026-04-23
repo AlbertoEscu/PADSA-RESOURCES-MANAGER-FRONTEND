@@ -8,8 +8,8 @@ export const usePersonalColumns = () => {
 
   const columns: Column<PersonalDto>[] = [
     {
-      key: "numeroPersonal",
-      label: "Número Personal",
+      key: "clave", // ✅ antes numeroPersonal
+      label: "Clave",
       sortable: true,
       filterable: true,
     },
@@ -25,15 +25,17 @@ export const usePersonalColumns = () => {
       label: "Nombre Completo",
       filterable: true,
     },
-    { key: "perfil", label: "Perfil" },
+
+    {
+      key: "perfil",
+      label: "Perfil",
+      filterable: true,
+    },
 
     { key: "curp", label: "CURP" },
     { key: "rfc", label: "RFC" },
-
     { key: "telefono", label: "Teléfono" },
-
     { key: "email", label: "Email" },
-
     { key: "direccion", label: "Dirección" },
 
     {
@@ -42,12 +44,12 @@ export const usePersonalColumns = () => {
       render: (row) => (
         <span
           className={`px-2 py-1 rounded text-xs ${
-            row.tipoRecurso === "Interno"
-              ? "bg-green-500/20 text-green-400"
-              : "bg-yellow-500/20 text-yellow-400"
+            row.tipoRecurso === "Administrativo"
+              ? "bg-blue-500/20 text-blue-400"
+              : "bg-purple-500/20 text-purple-400"
           }`}
         >
-          {row.tipoRecurso}
+          {row.tipoRecurso || "N/A"}
         </span>
       ),
     },
@@ -66,16 +68,14 @@ export const usePersonalColumns = () => {
       sortable: true,
     },
 
-    { key: "fechaBaja", label: "Fecha Baja" },
-
     {
-      key: "fechaUltimaModificacion",
-      label: "Última Modificación",
+      key: "fechaBaja",
+      label: "Fecha Baja",
     },
 
     {
-      key: "usuarioModificacion",
-      label: "Usuario Modificación",
+      key: "updatedAt", // ✅ antes fechaUltimaModificacion
+      label: "Última Modificación",
     },
 
     {

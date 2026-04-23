@@ -5,10 +5,11 @@ import { Pencil } from "lucide-react";
 export const projectColumns = (
   onEdit: (project: ProjectTableDto) => void,
 ): Column<ProjectTableDto>[] => [
-  { key: "idProyecto", label: "ID Proyecto", sortable: true },
-  { key: "idCliente", label: "ID Cliente", sortable: true },
-  { key: "nombreProyecto", label: "Nombre proyecto", sortable: true },
-  { key: "companiaAsignada", label: "Compañía asignada", sortable: true },
+  { key: "id", label: "ID", sortable: true },
+  { key: "clave", label: "Clave", sortable: true },
+  { key: "clienteId", label: "ID Cliente", sortable: true },
+  { key: "clienteClave", label: "Cliente", sortable: true },
+  { key: "nombre", label: "Nombre", sortable: true },
 
   {
     key: "fechaInicio",
@@ -18,41 +19,19 @@ export const projectColumns = (
       row.fechaInicio ? new Date(row.fechaInicio).toLocaleDateString() : "-",
   },
   {
-    key: "fechaFinal",
+    key: "fechaFin",
     label: "Fecha fin",
     sortable: true,
     render: (row) =>
-      row.fechaFinal ? new Date(row.fechaFinal).toLocaleDateString() : "-",
+      row.fechaFin ? new Date(row.fechaFin).toLocaleDateString() : "-",
   },
 
-  { key: "idJira", label: "Jira", sortable: true },
+  { key: "jiraId", label: "Jira", sortable: true },
   { key: "modalidad", label: "Modalidad", sortable: true },
   { key: "director", label: "Director", sortable: true },
-  { key: "solicitante", label: "Solicitante", sortable: true },
   { key: "gerente", label: "Gerente", sortable: true },
 
   { key: "areaNegocio", label: "Área negocio", sortable: true },
-  { key: "coe", label: "COE", sortable: true },
-  { key: "mesServicio", label: "Mes servicio", sortable: true },
-  { key: "anioServicio", label: "Año servicio", sortable: true },
-
-  { key: "usuarioWindows", label: "Usuario Windows", sortable: true },
-
-  {
-    key: "vigenciaUsuario",
-    label: "Vigencia usuario",
-    sortable: true,
-    render: (row) =>
-      row.vigenciaUsuario
-        ? new Date(row.vigenciaUsuario).toLocaleDateString()
-        : "-",
-  },
-
-  { key: "idConsultor", label: "ID Consultor", sortable: true },
-  { key: "pepCapex", label: "PEP Capex", sortable: true },
-  { key: "determinanteOpex", label: "OPEX", sortable: true },
-  { key: "numeroSow", label: "SOW", sortable: true },
-  { key: "companiaPago", label: "Compañía pago", sortable: true },
 
   {
     key: "horasEstimadas",
@@ -61,18 +40,30 @@ export const projectColumns = (
   },
 
   {
-    key: "fechaUltimaModificacion",
-    label: "Fecha modificación",
+    key: "createdAt",
+    label: "Creado",
     sortable: true,
     render: (row) =>
-      row.fechaUltimaModificacion
-        ? new Date(row.fechaUltimaModificacion).toLocaleDateString()
-        : "-",
+      row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "-",
   },
 
   {
-    key: "usuarioModificacion",
-    label: "Usuario modificación",
+    key: "updatedAt",
+    label: "Actualizado",
+    sortable: true,
+    render: (row) =>
+      row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : "-",
+  },
+
+  {
+    key: "createdBy",
+    label: "Creado por",
+    sortable: true,
+  },
+
+  {
+    key: "updatedBy",
+    label: "Actualizado por",
     sortable: true,
   },
 

@@ -1,100 +1,66 @@
-import { axiosInstance } from "../../../api/axiosInstance"; // ajusta ruta si cambia
+import { axiosInstance } from "../../../api/axiosInstance";
 import type { ClientDto, ClientForm } from "../types/client.types";
 
+/**
+ * 🔥 BACK → FRONT
+ */
+const mapToClientDto = (item: any): ClientDto => ({
+  id: item.id,
+  clave: item.clave,
+  nombre: item.nombre,
+  razonSocial: item.razonSocial,
+  rfc: item.rfc,
+  domicilioFiscal: item.domicilioFiscal,
+  email: item.email,
+  telefono: item.telefono,
+  estatus: item.estatus === "A" ? "Activo" : "Inactivo",
+  createdAt: item.createdAt,
+  updatedAt: item.updatedAt,
+  createdBy: item.createdBy,
+  updatedBy: item.updatedBy,
+});
+
+/**
+ * 🔥 FRONT → BACK
+ */
+const mapToRequest = (form: ClientForm) => ({
+  clave: form.clave,
+  nombre: form.nombre,
+  razonSocial: form.razonSocial,
+  rfc: form.rfc,
+  domicilioFiscal: form.domicilioFiscal,
+  email: form.email,
+  telefono: form.telefono,
+});
+
 export const clientService = {
-  async getClients(
-    page: number,
-    size: number,
-  ): Promise<{ data: ClientDto[]; total: number }> {
-    const response = await axiosInstance.get("/clientes", {
-      params: {
-        page: page - 1, // ⚠️ backend empieza en 0
-        size,
-      },
-    });
+  async getClients(): Promise<ClientDto[]> {
+    const response = await axiosInstance.get("/clientes");
+    return response.data.map(mapToClientDto);
+  },
 
-    const backendData = response.data;
-
-    // 🔥 MAPEO BACK -> FRONT
-    const mapped: ClientDto[] = backendData.content.map((item: any) => ({
-      id: item.idCliente,
-      numeroCliente: String(item.idCliente),
-      nombreCliente: item.nombreCliente,
-      razonSocial: item.razonSocial,
-      rfc: item.rfc,
-      domicilioFiscal: item.domFiscal,
-      correoElectronico: item.email,
-      telefono: String(item.telefono),
-      estatus: item.estatus,
-      fechaAlta: item.fechaAlta, // 👈 AQUÍ
-      fechaUltimaModificacion: item.fechaUltimaModificacion,
-      usuarioModificacion: item.usuarioModificacion,
-    }));
-
-    return {
-      data: mapped,
-      total: backendData.totalElements,
-    };
+  async getById(id: number): Promise<ClientDto> {
+    const response = await axiosInstance.get(`/clientes/${id}`);
+    return mapToClientDto(response.data);
   },
 
   async createClient(form: ClientForm): Promise<ClientDto> {
-    const payload = {
-      nombreCliente: form.nombreCliente,
-      razonSocial: form.razonSocial,
-      rfc: form.rfc,
-      domFiscal: form.domicilioFiscal,
-      email: form.correoElectronico,
-      telefono: form.telefono, // 🔥 ya es string
-      usuarioModificacion: "admin", // ⚠️ obligatorio
-    };
-
-    const response = await axiosInstance.post("/clientes", payload);
-
-    const item = response.data;
-
-    return {
-      id: item.idCliente,
-      numeroCliente: String(item.idCliente),
-      nombreCliente: item.nombreCliente,
-      razonSocial: item.razonSocial,
-      rfc: item.rfc,
-      domicilioFiscal: item.domFiscal,
-      correoElectronico: item.email,
-      telefono: item.telefono,
-      estatus: item.estatus,
-      fechaAlta: item.fechaAlta, // 👈 agregar
-      fechaUltimaModificacion: item.fechaUltimaModificacion,
-      usuarioModificacion: item.usuarioModificacion,
-    };
+    const response = await axiosInstance.post(
+      "/clientes",
+      mapToRequest(form),
+    );
+    return mapToClientDto(response.data);
   },
+
   async updateClient(id: number, form: ClientForm): Promise<ClientDto> {
-    const payload = {
-      nombreCliente: form.nombreCliente,
-      razonSocial: form.razonSocial,
-      rfc: form.rfc,
-      domFiscal: form.domicilioFiscal,
-      email: form.correoElectronico,
-      telefono: form.telefono,
-      usuarioModificacion: "admin", // ⚠️ obligatorio
-    };
+    const response = await axiosInstance.put(
+      `/clientes/${id}`,
+      mapToRequest(form),
+    );
+    return mapToClientDto(response.data);
+  },
 
-    const response = await axiosInstance.put(`/clientes/${id}`, payload);
-
-    const item = response.data;
-
-    return {
-      id: item.idCliente,
-      numeroCliente: String(item.idCliente),
-      nombreCliente: item.nombreCliente,
-      razonSocial: item.razonSocial,
-      rfc: item.rfc,
-      domicilioFiscal: item.domFiscal,
-      correoElectronico: item.email,
-      telefono: item.telefono,
-      estatus: item.estatus,
-      fechaAlta: item.fechaAlta, // 👈 agregar
-      fechaUltimaModificacion: item.fechaUltimaModificacion,
-      usuarioModificacion: item.usuarioModificacion,
-    };
+  async deleteClient(id: number): Promise<void> {
+    await axiosInstance.delete(`/clientes/${id}`);
   },
 };

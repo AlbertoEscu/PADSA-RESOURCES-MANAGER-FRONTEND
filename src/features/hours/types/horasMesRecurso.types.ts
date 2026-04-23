@@ -1,46 +1,55 @@
-export interface HorasMesRecursoDto {
-  id: number;            // 👈 necesario para DataTable
-  idHoras: number
 
-  numeroPersonal: string
-  nombrePersonal: string
 
-  anio: number
-  mes: number
-
-  horasSemana1: number
-  horasSemana2: number
-  horasSemana3: number
-  horasSemana4: number
-  horasSemana5: number
-
-  horasVacaciones: number
-  horasMes: number
-
-  fechaUltimaModificacion: string
-  usuarioModificacion: string
-
+export interface ReporteMensualDto {
+  id: number;
+  proveedor: string;
+  fecha: string;
+  idConsultor: string;
+  usuarioWindows: string;
+  nombreProfesional: string;
+  axityTribe: string;
+  axitySquadLead: string;
+  wmTechLead: string;
+  idJira: string;
+  nombreProyecto: string;
+  actividades: string;
+  horas: number;
+  entregables: string;
+  comentarios: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface SaveHorasMesRecursoDto {
+export interface UpdateReporteDetalleDto {
+  id: number;
+  horas: number;
+  comentarios: string;
+}
 
-  idHoras: number
+export interface HorasMesRecursoDto {
+  id: number;
+  proveedor: string;
+  fecha: string;
 
-  numeroPersonal: string
-  nombrePersonal: string
+  empleadoId: number;
+  usuarioWindows: string;
+  nombreProfesional: string;
 
-  anio: number
-  mes: number
+  axityTribe: string;
+  axitySquad: string;
+  lead: string;
+  wm: string;
+  techLead: string;
 
-  horasSemana1: number
-  horasSemana2: number
-  horasSemana3: number
-  horasSemana4: number
-  horasSemana5: number
+  idJira: string;
+  proyectoId: number;
+  nombreProyecto: string;
 
-  horasVacaciones: number
-  horasMes: number
+  actividades: string;
+  horas: number;
+  entregables: string;
+  comentarios: string;
 
-  usuarioModificacion: string
-
+  createdAt: string;
+  updatedAt: string;
 }

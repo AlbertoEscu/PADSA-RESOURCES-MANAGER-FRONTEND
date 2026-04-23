@@ -1,63 +1,12 @@
 import { axiosInstance } from "../../../api/axiosInstance";
-
 import type {
-  EmpleadoCatalogoDto,
+  CompaniaCatalogoDto,
+  EmpleadoRequestDTO,
+  EmpleadoResponseDTO,
   Option,
+  PerfilCatalogoDto,
   PersonalDto,
-  PersonalProjectDto,
-  ProyectoCatalogoDto,
 } from "../types/personal.types";
-
-/**
- * ==========================================
- * TYPES BACKEND
- * ==========================================
- */
-interface EmpleadoResponse {
-  idEmpleado: number;
-  idCompania: number;
-  nombreCompania: string;
-  nombreCompleto: string;
-  curp: string;
-  rfc: string;
-  telefono: number;
-  email: string;
-  direccion: string;
-  tipoRecurso: boolean;
-  nss: number;
-  estatus: string;
-
-  // 🔥 NUEVO
-  perfil?: {
-    idPerfil: number;
-    nombrePerfil: string;
-  };
-
-  fechaAlta: string;
-  fechaBaja?: string;
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
-
-interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-}
-
-interface PersonalProjectResponse {
-  numeroEmpleado: number;
-  nombreCompleto: string;
-  compania: string;
-  perfil: string;
-
-  idProyecto: number;
-  idCliente: number;
-  nombreProyecto: string;
-
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
 
 const handleRequest = async <T>(promise: Promise<any>): Promise<T> => {
   try {
@@ -69,184 +18,160 @@ const handleRequest = async <T>(promise: Promise<any>): Promise<T> => {
   }
 };
 
-const mapEmpleadoToPersonal = (emp: EmpleadoResponse): PersonalDto => ({
-  id: emp.idEmpleado,
-  numeroPersonal: String(emp.idEmpleado),
-  compania: emp.nombreCompania,
+/**
+ * 🔥 NORMALIZA tipoRecurso AQUÍ (CLAVE DEL FIX)
+ */
+const normalizeTipoRecurso = (
+  value: any
+): "Administrativo" | "Tecnico" | undefined => {
+  if (value === "true" || value === true) return "Tecnico";
+  if (value === "false" || value === false) return "Administrativo";
+
+  if (value === "Tecnico" || value === "Administrativo") return value;
+
+  return undefined;
+};
+
+const mapEmpleadoToPersonal = (emp: EmpleadoResponseDTO): PersonalDto => ({
+  id: emp.id,
+  clave: emp.clave,
+
+  companiaId: emp.companiaId,
+  compania: emp.companiaClave,
+
+  perfilId: emp.perfilId,
+  perfil: emp.perfilClave || "Sin perfil",
+
   nombreCompleto: emp.nombreCompleto,
+
   curp: emp.curp,
   rfc: emp.rfc,
-  telefono: String(emp.telefono),
+
+  telefono: emp.telefono,
   email: emp.email,
   direccion: emp.direccion,
-  esquema: "N/A",
-  tipoRecurso: emp.tipoRecurso ? "Interno" : "Externo",
-  nss: String(emp.nss),
-  estatus: emp.estatus,
 
-  // 🔥 AQUI VIENE LO NUEVO
-  perfil: emp.perfil?.nombrePerfil || "Sin perfil",
+  tipoRecurso: normalizeTipoRecurso(emp.tipoRecurso), // 🔥 FIX
+
+  nss: emp.nss,
 
   fechaAlta: emp.fechaAlta,
   fechaBaja: emp.fechaBaja,
-  fechaUltimaModificacion: emp.fechaUltimaModificacion,
-  usuarioModificacion: emp.usuarioModificacion,
-});
 
-const mapPersonalProject = (
-  item: PersonalProjectResponse,
-): PersonalProjectDto => ({
-  id: item.numeroEmpleado,
-  numeroEmpleado: String(item.numeroEmpleado),
-  nombreCompleto: item.nombreCompleto,
-  compania: item.compania,
-  perfil: item.perfil || "Sin perfil",
+  estatus: emp.estatus,
 
-  idproyecto: item.idProyecto,
-  idcliente: item.idCliente,
-  nombreProyecto: item.nombreProyecto,
-
-  fechaUltimaModificacion: item.fechaUltimaModificacion,
-  usuarioModificacion: item.usuarioModificacion,
+  createdAt: emp.createdAt,
+  updatedAt: emp.updatedAt,
 });
 
 /**
- * ==========================================
- * SERVICE
- * ==========================================
+ * 🔥 ESTE ERA EL ERROR → NO ESTABA EXPUESTO
  */
+const mapToFormData = (
+  data: PersonalDto
+): {
+  clave: string;
+  companiaId: number;
+  perfilId?: number;
+  nombreCompleto: string;
+  curp?: string;
+  rfc?: string;
+  telefono?: string;
+  email?: string;
+  direccion?: string;
+  tipoRecurso?: "Administrativo" | "Tecnico";
+  nss?: string;
+  fechaAlta?: string;
+  fechaBaja?: string;
+} => ({
+  clave: data.clave ?? "",
+  companiaId: data.companiaId ?? 0,
+  perfilId: data.perfilId ?? undefined,
+
+  nombreCompleto: data.nombreCompleto ?? "",
+
+  curp: data.curp ?? "",
+  rfc: data.rfc ?? "",
+
+  telefono: data.telefono ?? "",
+  email: data.email ?? "",
+  direccion: data.direccion ?? "",
+
+  tipoRecurso:
+    data.tipoRecurso === "Administrativo" ||
+    data.tipoRecurso === "Tecnico"
+      ? data.tipoRecurso
+      : undefined,
+
+  nss: data.nss ?? "",
+
+  fechaAlta: data.fechaAlta ?? "",
+  fechaBaja: data.fechaBaja ?? "",
+});
+
 export const personalService = {
-  /**
-   * ==========================================
-   * 👤 EMPLEADOS
-   * ==========================================
-   */
-  async getPersonal(): Promise<PersonalDto[]> {
-    const data = await handleRequest<PageResponse<EmpleadoResponse>>(
+  async getAll(): Promise<PersonalDto[]> {
+    const data = await handleRequest<EmpleadoResponseDTO[]>(
       axiosInstance.get("/empleados"),
     );
-    return data.content.map(mapEmpleadoToPersonal);
+
+    return data.map(mapEmpleadoToPersonal);
   },
 
-  async getById(id: string | number) {
-    const data = await handleRequest<EmpleadoResponse>(
+  async getById(id: number): Promise<PersonalDto> {
+    const data = await handleRequest<EmpleadoResponseDTO>(
       axiosInstance.get(`/empleados/${id}`),
     );
 
-    return {
-      ...mapEmpleadoToPersonal(data),
-      perfil: data.perfil, // 🔥 importante para el form
-    };
+    return mapEmpleadoToPersonal(data);
   },
 
-  async create(payload: any) {
-    return handleRequest(axiosInstance.post("/empleados", payload));
-  },
-
-  async update(id: string | number, payload: any) {
-    return handleRequest(axiosInstance.put(`/empleados/${id}`, payload));
-  },
-
-  async getPersonalProjects(): Promise<PersonalProjectDto[]> {
-    const data = await handleRequest<PersonalProjectResponse[]>(
-      axiosInstance.get("/asignaciones/empleados-con-proyectos"),
+  async create(payload: EmpleadoRequestDTO): Promise<PersonalDto> {
+    const data = await handleRequest<EmpleadoResponseDTO>(
+      axiosInstance.post("/empleados", payload),
     );
 
-    return data.map(mapPersonalProject);
+    return mapEmpleadoToPersonal(data);
   },
 
-  async getCatalogoEmpleados(): Promise<EmpleadoCatalogoDto[]> {
-    const data = await handleRequest<EmpleadoCatalogoDto[]>(
-      axiosInstance.get("/empleados/catalogo"),
+  async update(id: number, payload: EmpleadoRequestDTO): Promise<PersonalDto> {
+    const data = await handleRequest<EmpleadoResponseDTO>(
+      axiosInstance.put(`/empleados/${id}`, payload),
     );
 
-    return data;
+    return mapEmpleadoToPersonal(data);
   },
 
-  /**
-   * ==========================================
-   * 🧠 PROFILES
-   * ==========================================
-   */
+  async delete(id: number): Promise<void> {
+    await handleRequest(
+      axiosInstance.delete(`/empleados/${id}`),
+    );
+  },
 
-  async getPerfiles() {
-    const data = await handleRequest<PageResponse<any>>(
-      axiosInstance.get("/perfiles", {
-        params: { page: 0, size: 100 },
-      }),
+  async getPerfiles(): Promise<{ id: number; nombre: string }[]> {
+    const data = await handleRequest<PerfilCatalogoDto[]>(
+      axiosInstance.get("/perfiles/catalogo"),
     );
 
-    return data.content.map((item: any) => ({
-      id: item.idPerfil,
-      nombre: item.nombrePerfil,
+    return data.map((item) => ({
+      id: item.id,
+      nombre: item.clave,
+    }));
+  },
+
+  async getCompanias(): Promise<Option[]> {
+    const data = await handleRequest<CompaniaCatalogoDto[]>(
+      axiosInstance.get("/companias/catalogo"),
+    );
+
+    return data.map((item) => ({
+      value: item.id,
+      label: item.clave,
     }));
   },
 
   /**
-   * ==========================================
-   * 🧠 PROYECTOS
-   * ==========================================
+   * 🔥 EXPORTADO → YA NO FALLA
    */
-  async getCatalogoProyectos(): Promise<ProyectoCatalogoDto[]> {
-    const data = await handleRequest<ProyectoCatalogoDto[]>(
-      axiosInstance.get("/proyectos/catalogo"),
-    );
-
-    return data;
-  },
-  async asignarEmpleadosAProyecto(payload: {
-    idProyecto: number;
-    idEmpleados: number[];
-  }) {
-    return await handleRequest(
-      axiosInstance.post("/asignaciones/asignar-multiple", payload, {
-        headers: {
-          usuario: "admin", // ⚠️ aquí mete el usuario real después
-        },
-      }),
-    );
-  },
-
-  /**
-   * ==========================================
-   * 🧾 FORM
-   * ==========================================
-   */
-  mapToFormData(personal: PersonalDto) {
-    return {
-      numeroEmpleado: personal.numeroPersonal,
-      compania: personal.compania,
-      nombreCompleto: personal.nombreCompleto,
-      curp: personal.curp,
-      rfc: personal.rfc,
-      telefono: personal.telefono,
-      email: personal.email,
-      direccion: personal.direccion,
-      esquema: personal.esquema,
-      tipoRecurso: personal.tipoRecurso,
-      nss: personal.nss,
-      fechaAlta: personal.fechaAlta,
-      estatus: personal.estatus,
-    };
-  },
-
-  async getCatalogoEmpleadosOptions(): Promise<Option[]> {
-    const data = await this.getCatalogoEmpleados();
-
-    return data.map((emp) => ({
-      value: emp.idEmpleado,
-      label: emp.nombreCompleto,
-      extra: {
-        idPerfil: emp.idPerfil,
-      },
-    }));
-  },
-  async getCatalogoProyectosOptions(): Promise<Option[]> {
-    const data = await this.getCatalogoProyectos();
-
-    return data.map((proj) => ({
-      value: proj.idProyecto,
-      label: proj.nombreProyecto,
-    }));
-  },
+  mapToFormData,
 };

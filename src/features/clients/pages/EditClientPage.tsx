@@ -7,57 +7,66 @@ import { ArrowLeft, Save } from "lucide-react";
 import type { ClientDto, ClientForm } from "../types/client.types";
 import { clientService } from "../services/client.service";
 
+/**
+ * 🔥 DTO → FORM (ALINEADO CON BACK)
+ */
+const mapClientToForm = (client: ClientDto): ClientForm => ({
+  clave: client.clave,
+  nombre: client.nombre,
+  razonSocial: client.razonSocial,
+  rfc: client.rfc,
+  domicilioFiscal: client.domicilioFiscal,
+  email: client.email,
+  telefono: client.telefono,
+});
+
 export const EditClientPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
 
   const isEdit = Boolean(id);
+  const [loading, setLoading] = useState(false);
 
-  // 🧠 STATE FORM
   const [form, setForm] = useState<ClientForm>({
-    numeroCliente: "",
-    nombreCliente: "",
+    clave: "",
+    nombre: "",
     razonSocial: "",
     rfc: "",
     domicilioFiscal: "",
-    correoElectronico: "",
+    email: "",
     telefono: "",
-    estatus: "Activo",
-    fechaAlta: "",
   });
 
-  // 🔥 LOAD DATA FROM STATE (EDIT)
+  /**
+   * 🔥 LOAD DATA
+   */
   useEffect(() => {
-    if (isEdit && location.state) {
-      const client = location.state as ClientDto;
+    const loadData = async () => {
+      if (!isEdit) return;
 
-      setForm({
-        id: client.id,
-        numeroCliente: client.numeroCliente,
-        nombreCliente: client.nombreCliente,
-        razonSocial: client.razonSocial,
-        rfc: client.rfc,
-        domicilioFiscal: client.domicilioFiscal,
-        correoElectronico: client.correoElectronico,
-        telefono: client.telefono,
-        estatus: client.estatus,
-        fechaAlta: client.fechaAlta,
-      });
-    }
-  }, [isEdit, location.state]);
+      try {
+        setLoading(true);
 
-  // 🔥 SET FECHA ALTA EN CREATE (solo visual)
-  useEffect(() => {
-    if (!isEdit) {
-      setForm((prev) => ({
-        ...prev,
-        fechaAlta: new Date().toISOString(),
-      }));
-    }
-  }, [isEdit]);
+        if (location.state) {
+          setForm(mapClientToForm(location.state as ClientDto));
+        } else if (id) {
+          const client = await clientService.getById(Number(id));
+          setForm(mapClientToForm(client));
+        }
+      } catch (error) {
+        console.error("Error cargando cliente", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // 🧠 HANDLE CHANGE (corregido)
+    loadData();
+  }, [id, isEdit, location.state]);
+
+  /**
+   * 🧠 HANDLE CHANGE
+   */
   const handleChange = (field: keyof ClientForm, value: string) => {
     setForm((prev) => ({
       ...prev,
@@ -65,21 +74,20 @@ export const EditClientPage = () => {
     }));
   };
 
-  // 💾 SAVE
+  /**
+   * 💾 SAVE
+   */
   const handleSubmit = async () => {
     try {
-      if (!form.nombreCliente) return alert("Nombre requerido");
-      if (!form.razonSocial) return alert("Razón social requerida");
-      if (!form.rfc) return alert("RFC requerido");
-      if (!form.domicilioFiscal) return alert("Domicilio requerido");
-      if (!form.correoElectronico) return alert("Correo requerido");
+      if (!form.clave) return alert("Clave requerida");
+      if (!form.nombre) return alert("Nombre requerido");
 
-      if (!/^\d{12}$/.test(form.telefono)) {
-        return alert("Teléfono inválido (12 dígitos)");
+      if (form.telefono && !/^\d{10}$/.test(form.telefono)) {
+        return alert("Teléfono inválido (10 dígitos)");
       }
 
-      if (isEdit) {
-        await clientService.updateClient(form.id!, form);
+      if (isEdit && id) {
+        await clientService.updateClient(Number(id), form);
       } else {
         await clientService.createClient(form);
       }
@@ -91,16 +99,21 @@ export const EditClientPage = () => {
     }
   };
 
+  const inputStyle =
+    "w-full bg-padsa-surface-light border border-padsa-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-padsa-primary";
+
+  const labelStyle = "text-xs text-padsa-text-secondary mb-1 block";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6 max-w-4xl"
+      className="p-8 space-y-6"
     >
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-bold text-white">
             {isEdit ? "Editar Cliente" : "Nuevo Cliente"}
           </h1>
           <p className="text-padsa-text-secondary mt-1">
@@ -120,110 +133,110 @@ export const EditClientPage = () => {
       </div>
 
       {/* FORM */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Número de Cliente"
-          value={form.numeroCliente}
-          disabled={isEdit}
-          onChange={(v) => handleChange("numeroCliente", v)}
-        />
-
-        <Input
-          label="Nombre de Cliente"
-          value={form.nombreCliente}
-          onChange={(v) => handleChange("nombreCliente", v)}
-        />
-
-        <Input
-          label="Razón Social"
-          value={form.razonSocial}
-          onChange={(v) => handleChange("razonSocial", v)}
-        />
-
-        <Input
-          label="RFC"
-          value={form.rfc}
-          onChange={(v) => handleChange("rfc", v)}
-        />
-
-        <Input
-          label="Domicilio Fiscal"
-          value={form.domicilioFiscal}
-          onChange={(v) => handleChange("domicilioFiscal", v)}
-        />
-
-        <Input
-          label="Correo Electrónico"
-          value={form.correoElectronico}
-          onChange={(v) => handleChange("correoElectronico", v)}
-        />
-
-        <Input
-          label="Teléfono"
-          value={form.telefono}
-          onChange={(v) => handleChange("telefono", v)}
-        />
-
+      <div className="bg-padsa-surface border border-padsa-border rounded-2xl p-8 space-y-8 max-w-5xl">
+        {/* GENERALES */}
         <div>
-          <label className="text-sm text-padsa-text-secondary">Estatus</label>
-          <select
-            value={form.estatus}
-            onChange={(e) =>
-              handleChange("estatus", e.target.value as "Activo" | "Inactivo")
-            }
-            className="w-full mt-1 px-3 py-2 bg-padsa-surface rounded-lg border border-padsa-border"
-          >
-            <option value="Activo">Activo</option>
-            <option value="Inactivo">Inactivo</option>
-          </select>
+          <h2 className="text-lg font-semibold text-white mb-4">
+            Datos Generales
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelStyle}>Clave</label>
+              <input
+                value={form.clave}
+                disabled={isEdit}
+                onChange={(e) => handleChange("clave", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Nombre</label>
+              <input
+                value={form.nombre}
+                onChange={(e) => handleChange("nombre", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Razón Social</label>
+              <input
+                value={form.razonSocial || ""}
+                onChange={(e) => handleChange("razonSocial", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>RFC</label>
+              <input
+                value={form.rfc || ""}
+                onChange={(e) => handleChange("rfc", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* 🔥 FECHA ALTA */}
-        <Input
-          label="Fecha de Alta"
-          value={
-            form.fechaAlta
-              ? new Date(form.fechaAlta).toLocaleDateString("es-MX")
-              : ""
-          }
-          disabled
-          onChange={() => {}}
-        />
-      </div>
+        {/* CONTACTO */}
+        <div>
+          <h2 className="text-lg font-semibold text-white mb-4">
+            Información de Contacto
+          </h2>
 
-      {/* ACTION */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleSubmit}
-          className="flex items-center gap-2 px-6 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80"
-        >
-          <Save size={16} />
-          {isEdit ? "Guardar Cambios" : "Crear Cliente"}
-        </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelStyle}>Domicilio Fiscal</label>
+              <input
+                value={form.domicilioFiscal || ""}
+                onChange={(e) =>
+                  handleChange("domicilioFiscal", e.target.value)
+                }
+                className={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Correo Electrónico</label>
+              <input
+                value={form.email || ""}
+                onChange={(e) => handleChange("email", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Teléfono</label>
+              <input
+                value={form.telefono || ""}
+                onChange={(e) => handleChange("telefono", e.target.value)}
+                className={inputStyle}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-4 pt-4 border-t border-padsa-border">
+          <button
+            onClick={() => navigate("/clients")}
+            className="px-4 py-2 bg-padsa-surface-light rounded-lg"
+          >
+            Cancelar
+          </button>
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex items-center gap-2 px-6 py-2 bg-padsa-primary rounded-lg text-white disabled:opacity-50"
+          >
+            <Save size={16} />
+            {isEdit ? "Actualizar" : "Guardar"}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
 };
-
-// 🔧 INPUT REUTILIZABLE
-const Input = ({
-  label,
-  value,
-  onChange,
-  disabled = false,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  disabled?: boolean;
-}) => (
-  <div>
-    <label className="text-sm text-padsa-text-secondary">{label}</label>
-    <input
-      value={value || ""}
-      disabled={disabled}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full mt-1 px-3 py-2 bg-padsa-surface rounded-lg border border-padsa-border disabled:opacity-50"
-    />
-  </div>
-);

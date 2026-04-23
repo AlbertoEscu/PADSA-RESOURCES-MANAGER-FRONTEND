@@ -1,46 +1,27 @@
-import { axiosInstance } from "../../../../src/api/axiosInstance";
-import type { TarifaRecursoDto } from "../types/tarifaRecurso.types";
+import { axiosInstance } from "../../../api/axiosInstance";
+import type { TarifaRequest, TarifaResponse } from "../types/tarifaRecurso.types";
 
 const BASE_URL = "/tarifas";
 
-export const tarifaRecursoService = {
-  // 🔎 Obtener todas las tarifas con paginación y filtros
-  async getAll(
-    page = 0,
-    size = 10,
-    search?: string,
-    filters?: Partial<Record<keyof TarifaRecursoDto, string>>
-  ): Promise<{ content: TarifaRecursoDto[]; totalElements: number }> {
-    const params: any = { page, size };
-
-    if (search) params.search = search;
-
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params[key] = value;
-      });
-    }
-
-    const response = await axiosInstance.get<{ content: TarifaRecursoDto[]; totalElements: number }>(
-      BASE_URL,
-      { params }
-    );
-
+export const tarifaService = {
+  
+  async getAll(): Promise<TarifaResponse[]> {
+    const response = await axiosInstance.get<TarifaResponse[]>(BASE_URL);
     return response.data;
   },
 
-  async getById(id: number): Promise<TarifaRecursoDto> {
-    const response = await axiosInstance.get<TarifaRecursoDto>(`${BASE_URL}/${id}`);
+  async getById(id: number): Promise<TarifaResponse> {
+    const response = await axiosInstance.get<TarifaResponse>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
-  async create(data: Partial<TarifaRecursoDto>): Promise<TarifaRecursoDto> {
-    const response = await axiosInstance.post<TarifaRecursoDto>(BASE_URL, data);
+  async create(data: TarifaRequest): Promise<TarifaResponse> {
+    const response = await axiosInstance.post<TarifaResponse>(BASE_URL, data);
     return response.data;
   },
 
-  async update(id: number, data: Partial<TarifaRecursoDto>): Promise<TarifaRecursoDto> {
-    const response = await axiosInstance.put<TarifaRecursoDto>(`${BASE_URL}/${id}`, data);
+  async update(id: number, data: TarifaRequest): Promise<TarifaResponse> {
+    const response = await axiosInstance.put<TarifaResponse>(`${BASE_URL}/${id}`, data);
     return response.data;
   },
 

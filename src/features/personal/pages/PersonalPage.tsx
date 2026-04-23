@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 import { DataTable } from "../../../shared/components/ui/DataTable";
 import { usePersonalColumns } from "../config/personalColumns";
 import { personalService } from "../services/personal.service";
+import { Plus } from "lucide-react";
+
 
 import type { PersonalDto } from "../types/personal.types";
 
-import { ArrowLeft, Plus } from "lucide-react";
+import logo from "../../../assets/logo.png";
 
 export const PersonalPage = () => {
   const navigate = useNavigate();
@@ -33,19 +35,19 @@ export const PersonalPage = () => {
     }));
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+useEffect(() => {
+  const loadData = async () => {
+    setLoading(true);
 
-      const result = await personalService.getPersonal();
+    const result = await personalService.getAll(); // ✅ FIX
 
-      setData(result);
+    setData(result);
 
-      setLoading(false);
-    };
+    setLoading(false);
+  };
 
-    loadData();
-  }, []);
+  loadData();
+}, []);
 
   /**
    * ==========================================
@@ -109,8 +111,8 @@ export const PersonalPage = () => {
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70 transition"
           >
-            <ArrowLeft size={16} />
-            Volver
+            <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
+            Inicio
           </button>
 
           <button

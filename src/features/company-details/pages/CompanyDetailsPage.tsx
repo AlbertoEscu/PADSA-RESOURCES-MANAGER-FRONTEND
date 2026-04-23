@@ -10,8 +10,10 @@ import type {
   CompanyStatus,
   CompanyStatusDB,
 } from "../types/companyDetails.types";
-import { ArrowLeft, Plus } from "lucide-react";
+
+import { Plus } from "lucide-react";
 import { showError } from "../../../shared/utils/toast";
+import logo from "../../../assets/logo.png";
 
 // 🔹 Normaliza status de DB a UI
 const normalizeStatusFromDB = (estatus: CompanyStatusDB): CompanyStatus =>
@@ -34,8 +36,7 @@ export const CompanyDetailsPage = () => {
   const pageSize = 5;
 
   const handleEdit = (company: CompanyRow) => {
-    // 🔹 Pasamos solo datos serializables para evitar DataCloneError
-    navigate(`/companies/edit/${company.idCompania}`);
+    navigate(`/companies/edit/${company.id}`); // ✅ corregido
   };
 
   const columns = companyColumns(handleEdit);
@@ -48,20 +49,17 @@ export const CompanyDetailsPage = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const response = await companyDetailsService.getCompanies(
-        page - 1,
-        pageSize,
-      );
+      const response = await companyDetailsService.getCompanies();
 
-      const mapped: CompanyRow[] = response.content.map((c) => ({
+      const mapped: CompanyRow[] = response.map((c) => ({
         ...c,
-        id: c.idCompania,
-        estatus: normalizeStatusFromDB(c.estatus),
-        fechaAlta: c.fechaAlta, // 👈 NUEVO
+        id: c.id,
+        nombre: c.nombre, // opcional pero explícito
+        estatus: normalizeStatusFromDB(c.estatus as CompanyStatusDB),
       }));
 
       setData(mapped);
-      setTotal(response.totalElements);
+      setTotal(mapped.length);
     } catch (error) {
       showError("Error cargando compañías");
       console.error(error);
@@ -72,7 +70,7 @@ export const CompanyDetailsPage = () => {
 
   useEffect(() => {
     loadData();
-  }, [page]);
+  }, []);
 
   return (
     <motion.div
@@ -96,7 +94,8 @@ export const CompanyDetailsPage = () => {
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70"
           >
-            <ArrowLeft size={16} /> Volver
+            <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
+            Inicio
           </button>
 
           <button

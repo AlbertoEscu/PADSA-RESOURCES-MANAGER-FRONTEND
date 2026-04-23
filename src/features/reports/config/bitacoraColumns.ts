@@ -1,20 +1,23 @@
 import type { Column } from "../../../shared/components/ui/DataTable";
-import type { BitacoraMensualResponse } from "../types/reports.types";
+import type { ReporteMensualProyectoResponse } from "../types/reports.types";
 
-export const bitacoraColumns: Column<BitacoraMensualResponse>[] = [
-  { key: "idEmpleado", label: "ID Empleado" },
-  { key: "nombreEmpleado", label: "Nombre Empleado" },
-  { key: "rfcEmpleado", label: "RFC" },
-  { key: "emailEmpleado", label: "Email" },
-  { key: "idCompania", label: "ID Compañía" },
-  { key: "nombreCompania", label: "Compañía", filterable: true },
-  { key: "idProyecto", label: "ID Proyecto" },
-  { key: "nombreProyecto", label: "Proyecto" },
-  { key: "idJira", label: "ID Jira" },
-  { key: "idHoras", label: "ID Horas" },
-  { key: "fecha", label: "Fecha" },
+export const bitacoraColumns: Column<ReporteMensualProyectoResponse>[] = [
+  { key: "empleadoId", label: "ID Empleado" },
+  { key: "nombreEmpleado", label: "Empleado", filterable: true },
+  { key: "rfc", label: "RFC" },
+  { key: "email", label: "Email" },
+
+  { key: "compania", label: "Compañía" },
+
+  { key: "proyectoNombre", label: "Proyecto", filterable: true },
+  { key: "jiraId", label: "Jira" },
+
   { key: "mes", label: "Mes" },
   { key: "anio", label: "Año" },
-  { key: "horasTrabajadas", label: "Horas Trabajadas" },
+
+  { key: "horasTrabajadas", label: "Horas" },
+  { key: "tarifaHora", label: "Tarifa" },
+  { key: "montoTotal", label: "Total" },
+
   { key: "descripcion", label: "Descripción" },
 ];

@@ -8,10 +8,10 @@ import { horasMesRecursoService } from "../services/horasMesRecurso.service";
 
 import type { HorasMesRecursoDto } from "../types/horasMesRecurso.types";
 
-import { Plus, ArrowLeft } from "lucide-react";
-
-import { Upload } from "lucide-react";
+import { Upload, Search, RotateCcw } from "lucide-react";
 import { showSuccess, showError } from "../../../shared/utils/toast";
+
+import logo from "../../../assets/logo.png";
 
 export const HorasMesRecursoPage = () => {
   const navigate = useNavigate();
@@ -27,33 +27,57 @@ export const HorasMesRecursoPage = () => {
     Partial<Record<keyof HorasMesRecursoDto, string>>
   >({});
 
-  // 🔥 Obtener mes actual para UI
-  const now = new Date();
-  const mesActual = now.toLocaleString("es-MX", { month: "long" });
+  const [searchFilters, setSearchFilters] = useState({
+    empleadoId: "",
+    proyectoId: "",
+    fechaInicio: "",
+    fechaFin: "",
+  });
 
-  // 🚀 Carga de datos real
+  const loadData = async (params = {}) => {
+    try {
+      setLoading(true);
+      const response = await horasMesRecursoService.findWithFilters(params);
+      setData(response);
+    } catch (error) {
+      console.error("❌ Error cargando:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-
-        const response = await horasMesRecursoService.getAll();
-
-        setData(response);
-      } catch (error) {
-        console.error("❌ Error cargando horas mes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
   }, []);
 
-  const handleEdit = (row: HorasMesRecursoDto) => {
-    navigate(`/hours/edit/${row.idHoras}`, {
-      state: row, // 👈 AQUÍ ESTÁ LA MAGIA
+  const handleSearch = () => {
+    loadData({
+      empleadoId: searchFilters.empleadoId || undefined,
+      proyectoId: searchFilters.proyectoId || undefined,
+      fechaInicio: searchFilters.fechaInicio || undefined,
+      fechaFin: searchFilters.fechaFin || undefined,
     });
+  };
+
+  const handleClear = () => {
+    setSearchFilters({
+      empleadoId: "",
+      proyectoId: "",
+      fechaInicio: "",
+      fechaFin: "",
+    });
+    loadData({});
+  };
+
+  const handleSearchChange = (field: string, value: string) => {
+    setSearchFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleEdit = (row: HorasMesRecursoDto) => {
+    navigate(`/hours/edit/${row.id}`, { state: row });
   };
 
   const columns = horasMesRecursoColumns(handleEdit);
@@ -68,14 +92,11 @@ export const HorasMesRecursoPage = () => {
     }));
   };
 
-  // 🔎 Filtros
   const filteredData = data.filter((row) => {
     const matchesColumnFilters = Object.entries(filters).every(
       ([key, value]) => {
         if (!value) return true;
-
         const rowValue = String((row as any)[key] ?? "").toLowerCase();
-
         return rowValue.includes(value.toLowerCase());
       },
     );
@@ -91,62 +112,42 @@ export const HorasMesRecursoPage = () => {
     return matchesColumnFilters && matchesGlobalSearch;
   });
 
-  // Reset página cuando filtras
   useEffect(() => {
     setPage(1);
   }, [filters, globalSearch]);
 
-  // 📄 Paginación
   const start = (page - 1) * pageSize;
   const paginatedData = filteredData.slice(start, start + pageSize);
 
-  const fileInputRef = useState<HTMLInputElement | null>(null);
-  const multiFileInputRef = useState<HTMLInputElement | null>(null);
-
-  // 📤 Upload simple
-  const handleSingleUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
+  // Uploads
+  const handleSingleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       setLoading(true);
-
       await horasMesRecursoService.uploadFile(file);
-
       showSuccess("Archivo cargado correctamente");
-
-      // 🔄 Recargar data
-      const response = await horasMesRecursoService.getAll();
-      setData(response);
-    } catch (error) {
-      console.error(error);
+      await loadData();
+    } catch {
       showError("Error al cargar archivo");
     } finally {
       setLoading(false);
     }
   };
 
-  // 📤 Upload múltiple
   const handleMultipleUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const files = e.target.files;
+    if (!files) return;
 
     try {
       setLoading(true);
-
       await horasMesRecursoService.uploadMultiple(Array.from(files));
-
       showSuccess("Archivos cargados correctamente");
-
-      // 🔄 Recargar data
-      const response = await horasMesRecursoService.getAll();
-      setData(response);
-    } catch (error) {
-      console.error(error);
+      await loadData();
+    } catch {
       showError("Error al cargar archivos");
     } finally {
       setLoading(false);
@@ -160,23 +161,23 @@ export const HorasMesRecursoPage = () => {
       className="flex flex-col gap-6"
     >
       {/* HEADER */}
-
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white capitalize">
-          Horas Mes / Recurso ({mesActual})
-        </h1>
-
+        <div>
+          <h1 className="text-3xl font-bold text-white">Horas Mes / Recurso</h1>
+          <p className="text-sm text-gray-400">
+            Consulta y gestión de horas cargadas por recurso
+          </p>
+        </div>
         <div className="flex gap-3 items-center">
-          {/* INPUT HIDDEN SINGLE */}
+          {" "}
+          {/* INPUTS */}{" "}
           <input
             type="file"
             accept=".xlsx,.xls"
             className="hidden"
             onChange={handleSingleUpload}
             id="upload-single"
-          />
-
-          {/* INPUT HIDDEN MULTIPLE */}
+          />{" "}
           <input
             type="file"
             accept=".xlsx,.xls"
@@ -184,58 +185,150 @@ export const HorasMesRecursoPage = () => {
             className="hidden"
             onChange={handleMultipleUpload}
             id="upload-multiple"
-          />
-
-          {/* BOTÓN SINGLE */}
+          />{" "}
+          {/* BOTONES */}{" "}
           <button
             onClick={() => document.getElementById("upload-single")?.click()}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
-            <Upload size={16} />
-            Subir Excel
-          </button>
-
-          {/* BOTÓN MULTIPLE */}
+            {" "}
+            <Upload size={16} /> Subir Excel{" "}
+          </button>{" "}
           <button
             onClick={() => document.getElementById("upload-multiple")?.click()}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            <Upload size={16} />
-            Subir Múltiples
-          </button>
+            {" "}
+            <Upload size={16} /> Subir Múltiples{" "}
+          </button>{" "}
           <button
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70"
           >
-            <ArrowLeft size={16} />
-            Volver
+            {" "}
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-5 h-5 object-contain"
+            />{" "}
+            Inicio{" "}
+          </button>{" "}
+        </div>{" "}
+      </div>
+
+      {/* FILTROS PRO */}
+      {/* FILTROS COMPACTOS PRO */}
+      <div
+        className="
+  bg-[#1E293B] border border-white/10 
+  px-4 py-3 
+  rounded-xl shadow-lg 
+  flex flex-wrap items-end gap-3
+"
+      >
+        {/* Empleado */}
+        <div className="flex flex-col text-xs text-gray-300">
+          <span>Empleado</span>
+          <input
+            type="number"
+            placeholder="ID"
+            value={searchFilters.empleadoId}
+            onChange={(e) => handleSearchChange("empleadoId", e.target.value)}
+            className="
+        h-9 px-2 
+        rounded-md 
+        bg-white text-black 
+        border border-gray-300
+        focus:ring-2 focus:ring-blue-500 outline-none
+      "
+          />
+        </div>
+
+        {/* Proyecto */}
+        <div className="flex flex-col text-xs text-gray-300">
+          <span>Proyecto</span>
+          <input
+            type="number"
+            placeholder="ID"
+            value={searchFilters.proyectoId}
+            onChange={(e) => handleSearchChange("proyectoId", e.target.value)}
+            className="h-9 px-2 rounded-md bg-white text-black border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Fecha inicio */}
+        <div className="flex flex-col text-xs text-gray-300">
+          <span>Inicio</span>
+          <input
+            type="date"
+            value={searchFilters.fechaInicio}
+            onChange={(e) => handleSearchChange("fechaInicio", e.target.value)}
+            className="h-9 px-2 rounded-md bg-white text-black border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Fecha fin */}
+        <div className="flex flex-col text-xs text-gray-300">
+          <span>Fin</span>
+          <input
+            type="date"
+            value={searchFilters.fechaFin}
+            onChange={(e) => handleSearchChange("fechaFin", e.target.value)}
+            className="h-9 px-2 rounded-md bg-white text-black border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* BOTONES */}
+        <div className="flex gap-2 ml-auto">
+          <button
+            onClick={handleSearch}
+            className="
+        flex items-center gap-1
+        h-9 px-4
+        rounded-lg
+        bg-gradient-to-r from-blue-600 to-blue-500
+        text-white text-sm
+        shadow hover:scale-[1.03]
+        transition
+      "
+          >
+            <Search size={14} />
+            Buscar
           </button>
 
           <button
-            onClick={() => navigate("/hours/new")}
-            className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
+            onClick={handleClear}
+            className="
+        flex items-center gap-1
+        h-9 px-4
+        rounded-lg
+        border border-gray-400
+        text-gray-200 text-sm
+        hover:bg-white/10
+        transition
+      "
           >
-            <Plus size={16} />
-            Nuevo Registro
+            <RotateCcw size={14} />
           </button>
         </div>
       </div>
 
       {/* TABLA */}
-
-      <DataTable<HorasMesRecursoDto>
-        columns={columns}
-        data={paginatedData}
-        loading={loading}
-        page={page}
-        pageSize={pageSize}
-        total={filteredData.length}
-        filters={filters}
-        globalSearch={globalSearch}
-        onGlobalSearchChange={setGlobalSearch}
-        onFilterChange={handleFilterChange}
-        onPageChange={setPage}
-      />
+      <div className="bg-padsa-surface-light p-4 rounded-2xl shadow-md">
+        <DataTable<HorasMesRecursoDto>
+          columns={columns}
+          data={paginatedData}
+          loading={loading}
+          page={page}
+          pageSize={pageSize}
+          total={filteredData.length}
+          filters={filters}
+          globalSearch={globalSearch}
+          onGlobalSearchChange={setGlobalSearch}
+          onFilterChange={handleFilterChange}
+          onPageChange={setPage}
+        />
+      </div>
     </motion.div>
   );
 };

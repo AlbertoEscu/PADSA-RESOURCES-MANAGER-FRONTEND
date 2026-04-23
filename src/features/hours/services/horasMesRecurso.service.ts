@@ -1,112 +1,106 @@
 import { axiosInstance } from "../../../api/axiosInstance";
 
-import type {
-  HorasMesRecursoDto,
-  SaveHorasMesRecursoDto,
-} from "../types/horasMesRecurso.types";
+import type { HorasMesRecursoDto } from "../types/horasMesRecurso.types";
 
 export const horasMesRecursoService = {
+  /**
+   * =========================
+   * UPLOAD EXCEL (SINGLE)
+   * =========================
+   */
+  async uploadFile(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axiosInstance.post("/horas-mes-recursos/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  },
 
   /**
    * =========================
-   * OBTENER MES ACTUAL (REAL)
+   * UPLOAD EXCEL (MULTIPLE)
    * =========================
    */
-  async getAll(): Promise<HorasMesRecursoDto[]> {
-    const response = await axiosInstance.get("/recursos/mes-actual");
+  async uploadMultiple(files: File[]): Promise<any> {
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const response = await axiosInstance.post(
+      "/horas-mes-recursos/upload-multiple",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    return response.data;
+  },
+
+  async findWithFilters(params: {
+    empleadoId?: number;
+    proyectoId?: number;
+    fechaInicio?: string; // ISO: yyyy-MM-dd
+    fechaFin?: string;
+  }): Promise<HorasMesRecursoDto[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params.empleadoId) {
+      queryParams.append("empleadoId", params.empleadoId.toString());
+    }
+
+    if (params.proyectoId) {
+      queryParams.append("proyectoId", params.proyectoId.toString());
+    }
+
+    if (params.fechaInicio) {
+      queryParams.append("fechaInicio", params.fechaInicio);
+    }
+
+    if (params.fechaFin) {
+      queryParams.append("fechaFin", params.fechaFin);
+    }
+
+    const response = await axiosInstance.get(
+      `/horas-mes-recursos/filtrar?${queryParams.toString()}`,
+    );
 
     // 🔥 Adaptador backend → frontend
-    return response.data.map((item: any, index: number) => ({
-      id: index + 1,
-      idHoras: index + 1,
+    return response.data.map((item: any) => ({
+      id: item.id,
+      proveedor: item.proveedor,
+      fecha: item.fecha,
 
-      numeroPersonal: item.numeroPersonal,
-      nombrePersonal: item.nombrePersonal,
+      empleadoId: item.empleadoId,
+      usuarioWindows: item.usuarioWindows,
+      nombreProfesional: item.nombreProfesional,
 
-      anio: item.anio,
-      mes: item.mes,
+      axityTribe: item.axityTribe,
+      axitySquad: item.axitySquad,
+      lead: item.lead,
+      wm: item.wm,
+      techLead: item.techLead,
 
-      horasSemana1: item.horasSemana1 ?? 0,
-      horasSemana2: item.horasSemana2 ?? 0,
-      horasSemana3: item.horasSemana3 ?? 0,
-      horasSemana4: item.horasSemana4 ?? 0,
-      horasSemana5: item.horasSemana5 ?? 0,
+      idJira: item.idJira,
+      proyectoId: item.proyectoId,
+      nombreProyecto: item.nombreProyecto,
 
-      horasVacaciones: item.horasVacaciones ?? 0,
-      horasMes: item.horasMes ?? 0,
+      actividades: item.actividades,
+      horas: item.horas ?? 0,
+      entregables: item.entregables,
+      comentarios: item.comentarios,
 
-      usuarioModificacion: item.usuarioModificacion ?? "system",
-      fechaUltimaModificacion: new Date().toISOString(),
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
     }));
   },
-
-  /**
-   * =========================
-   * (OPCIONAL) GET BY ID
-   * =========================
-   */
-  async getById(id: number): Promise<HorasMesRecursoDto | undefined> {
-    console.warn("getById no implementado en backend");
-    return undefined;
-  },
-
-  /**
-   * =========================
-   * (OPCIONAL) CREATE
-   * =========================
-   */
-  async createHours(data: SaveHorasMesRecursoDto): Promise<void> {
-    console.warn("createHours no implementado en backend");
-  },
-
-  /**
-   * =========================
-   * (OPCIONAL) UPDATE
-   * =========================
-   */
-  async updateHours(
-    id: number,
-    data: Partial<HorasMesRecursoDto>,
-  ): Promise<void> {
-    console.warn("updateHours no implementado en backend");
-  },
-
-  /**
- * =========================
- * UPLOAD EXCEL (SINGLE)
- * =========================
- */
-async uploadFile(file: File): Promise<any> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await axiosInstance.post("/recursos/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-
-  return response.data;
-},
-
-/**
- * =========================
- * UPLOAD EXCEL (MULTIPLE)
- * =========================
- */
-async uploadMultiple(files: File[]): Promise<any> {
-  const formData = new FormData();
-
-  files.forEach((file) => {
-    formData.append("files", file);
-  });
-
-  const response = await axiosInstance.post("/recursos/upload-multiple", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-
-  return response.data;
-},
 };

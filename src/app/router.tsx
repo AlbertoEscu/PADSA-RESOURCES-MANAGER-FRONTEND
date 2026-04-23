@@ -37,6 +37,9 @@ import { PersonalWizardProvider } from "../features/personal/components/Personal
 import { EditClientPage } from "../features/clients/pages/EditClientPage";
 import { EditProjectPage } from "../features/projects/pages/EditProjectPage";
 
+import { PerfilPage } from "../features/perfiles/pages/PerfilPage";
+import { PerfilFormPage } from "../features/perfiles/pages/PerfilFormPage";
+
 export const AppRouter = () => {
   const { token } = useAuth();
 
@@ -86,6 +89,11 @@ export const AppRouter = () => {
         <Route path="/clients" element={<ClientsPage />} />
         <Route path="clients/new" element={<EditClientPage />} />
         <Route path="clients/edit/:id" element={<EditClientPage />} />
+
+        {/* ===================== PERFILES ===================== */}
+        <Route path="/perfiles" element={<PerfilPage />} />
+        <Route path="/perfiles/new" element={<PerfilFormPage />} />
+        <Route path="/perfiles/edit/:id" element={<PerfilFormPage />} />
 
         {/* Projects */}
         <Route path="/projects" element={<ProjectsPage />} />

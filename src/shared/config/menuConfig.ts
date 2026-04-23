@@ -5,6 +5,7 @@ import {
   CreditCard,
   DollarSign,
   FileText,
+  BadgeCheck,
 } from "lucide-react";
 
 export interface SubMenuItem {
@@ -85,6 +86,16 @@ export const menuConfig: ModuleMenu[] = [
         label: "Generar reportes",
         path: "/reports",
         icon: FileText,
+      },
+      {
+        label: "Perfiles",
+        icon: BadgeCheck,
+        children: [
+          {
+            label: "Consulta Perfiles",
+            path: "/perfiles",
+          },
+        ],
       },
     ],
   },
@@ -275,7 +286,7 @@ export const menuConfig: ModuleMenu[] = [
       },
     ],
   },
-   /**
+  /**
    * ==========================================
    * MÓDULO Proyectos
    * ==========================================
@@ -324,7 +335,7 @@ export const menuConfig: ModuleMenu[] = [
       },
     ],
   },
-   /**
+  /**
    * ==========================================
    * MÓDULO CLIENTES
    * ==========================================
@@ -367,6 +378,54 @@ export const menuConfig: ModuleMenu[] = [
           {
             label: "Editar",
             path: "/clients/edit/",
+            hidden: true,
+          },
+        ],
+      },
+    ],
+  },
+  /**
+   * ==========================================
+   * MÓDULO PERFILES
+   * ==========================================
+   */
+  {
+    basePath: "/perfiles",
+    title: "Perfiles",
+    items: [
+      {
+        label: "Perfiles",
+        icon: Building2,
+        children: [
+          {
+            label: "Consulta Perfiles",
+            path: "/perfiles",
+          },
+        ],
+      },
+
+      // ✅ CREATE (oculto)
+      {
+        label: "Alta Perfil",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Nuevo Perfil",
+            path: "/perfiles/new",
+          },
+        ],
+      },
+
+      // ✅ EDIT (oculto)
+      {
+        label: "Editar Perfil",
+        icon: Building2,
+        hidden: true,
+        children: [
+          {
+            label: "Editar",
+            path: "/perfiles/edit/",
             hidden: true,
           },
         ],

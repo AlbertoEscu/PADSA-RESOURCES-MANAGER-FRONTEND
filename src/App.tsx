@@ -1,7 +1,7 @@
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import { AuthProvider } from "../src/features/auth/context/AuthContext";
+import { AuthProvider } from "../src/features/auth/context/AuthProvider";
 import { AppRouter } from "./app/router";
 import SessionExpiredModal from "../src/components/SessionExpiredModal";
 

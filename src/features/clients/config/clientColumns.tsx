@@ -6,14 +6,14 @@ export const clientColumns = (
   onEdit: (client: ClientDto) => void,
 ): Column<ClientDto>[] => [
   {
-    key: "numeroCliente",
-    label: "Número cliente",
+    key: "clave",
+    label: "Clave",
     sortable: true,
     filterable: true,
   },
   {
-    key: "nombreCliente",
-    label: "Nombre cliente",
+    key: "nombre",
+    label: "Nombre",
     sortable: true,
     filterable: true,
   },
@@ -36,8 +36,8 @@ export const clientColumns = (
     filterable: true,
   },
   {
-    key: "correoElectronico",
-    label: "Correo electrónico",
+    key: "email",
+    label: "Correo",
     sortable: true,
     filterable: true,
   },
@@ -50,8 +50,6 @@ export const clientColumns = (
   {
     key: "estatus",
     label: "Estatus",
-    sortable: true,
-    filterable: true,
     render: (row) => (
       <span
         className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -65,18 +63,18 @@ export const clientColumns = (
     ),
   },
   {
-    key: "fechaAlta",
+    key: "createdAt",
     label: "Fecha alta",
     sortable: true,
   },
   {
-    key: "fechaUltimaModificacion",
-    label: "Fecha modificación",
+    key: "updatedAt",
+    label: "Última modificación",
     sortable: true,
   },
   {
-    key: "usuarioModificacion",
-    label: "Usuario modificación",
+    key: "updatedBy",
+    label: "Usuario",
     sortable: true,
   },
   {
@@ -85,9 +83,8 @@ export const clientColumns = (
     render: (row) => (
       <button
         onClick={() => onEdit(row)}
-        className="flex items-center gap-1 px-3 py-1 text-xs border border-padsa-primary text-padsa-primary rounded-lg transition-all duration-200 hover:bg-padsa-primary hover:text-white hover:shadow-md"
+        className="flex items-center gap-1 px-3 py-1 text-xs border border-padsa-primary text-padsa-primary rounded-lg hover:bg-padsa-primary hover:text-white"
       >
-        <Pencil size={14} />
         Editar
       </button>
     ),

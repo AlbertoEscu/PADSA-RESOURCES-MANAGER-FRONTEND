@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -8,50 +8,58 @@ import { projectColumns } from "../config/projectColumns";
 import { projectService } from "../services/project.service";
 import type { ProjectDto } from "../types/project.types";
 
-import { ArrowLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import logo from "../../../assets/logo.png";
 
-// 👇 tipo extendido FUERA del componente (mejor práctica)
-export type ProjectTableDto = ProjectDto & {
-  id: number;
-};
+export type ProjectTableDto = ProjectDto;
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
 
   const [data, setData] = useState<ProjectTableDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
+  // 🔥 estados requeridos por DataTable
   const [filters, setFilters] = useState<
     Partial<Record<keyof ProjectTableDto, string>>
   >({});
-  const [error, setError] = useState<string | null>(null);
+  const [globalSearch, setGlobalSearch] = useState("");
 
+  const [page, setPage] = useState(1);
   const pageSize = 5;
 
+  // ✅ handler correcto (EL FIX DEL ERROR)
+  const handleFilterChange = (
+    field: keyof ProjectTableDto,
+    value: string
+  ) => {
+    setFilters((prev) => {
+      const updated = { ...prev };
+
+      if (!value) delete updated[field];
+      else updated[field] = value;
+
+      return updated;
+    });
+  };
+
   const handleEdit = (project: ProjectTableDto) => {
-    navigate(`/projects/edit/${project.idProyecto}`, {
+    navigate(`/projects/edit/${project.id}`, {
       state: project,
     });
   };
 
   const columns = projectColumns(handleEdit);
 
+  // 🔥 carga real
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await projectService.getProjects(page, pageSize);
-
-      const mappedData: ProjectTableDto[] = response.content.map((item) => ({
-        ...item,
-        id: item.idProyecto,
-      }));
-
-      setData(mappedData);
-      setTotal(response.totalElements);
+      const response = await projectService.getProjects();
+      setData(response);
     } catch (err) {
       console.error("Error cargando proyectos", err);
       setError("No se pudieron cargar los proyectos");
@@ -62,7 +70,42 @@ export const ProjectsPage = () => {
 
   useEffect(() => {
     loadData();
-  }, [page]);
+  }, []);
+
+  // 🔥 filtros + búsqueda (CLIENT SIDE)
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      // 🔎 global search
+      const matchesSearch = globalSearch
+        ? Object.values(item)
+            .join(" ")
+            .toLowerCase()
+            .includes(globalSearch.toLowerCase())
+        : true;
+
+      // 🔎 filtros por columna
+      const matchesFilters = Object.entries(filters).every(
+        ([key, value]) => {
+          if (!value) return true;
+
+          const fieldValue = item[key as keyof ProjectTableDto];
+
+          return fieldValue
+            ?.toString()
+            .toLowerCase()
+            .includes(value.toLowerCase());
+        }
+      );
+
+      return matchesSearch && matchesFilters;
+    });
+  }, [data, filters, globalSearch]);
+
+  // 🔥 paginación local
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredData.slice(start, start + pageSize);
+  }, [filteredData, page]);
 
   return (
     <motion.div
@@ -87,8 +130,8 @@ export const ProjectsPage = () => {
             onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70"
           >
-            <ArrowLeft size={16} />
-            Volver
+            <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
+            Inicio
           </button>
 
           <button
@@ -100,6 +143,8 @@ export const ProjectsPage = () => {
           </button>
         </div>
       </div>
+
+      {/* ERROR */}
       {error && (
         <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-2 rounded-lg">
           {error}
@@ -108,15 +153,17 @@ export const ProjectsPage = () => {
 
       {/* TABLE */}
       <DataTable<ProjectTableDto>
-        data={data}
+        data={paginatedData}
         columns={columns}
         loading={loading}
-        page={page + 1}
+        page={page}
         pageSize={pageSize}
-        total={total}
-        filters={filters} // 👈 vacío pero cumple
-        onFilterChange={() => {}} // 👈 noop
-        onPageChange={(newPage) => setPage(newPage - 1)}
+        total={filteredData.length}
+        filters={filters}
+        globalSearch={globalSearch}
+        onGlobalSearchChange={setGlobalSearch}
+        onFilterChange={handleFilterChange}
+        onPageChange={setPage}
       />
     </motion.div>
   );

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
 
+import { empleadoProyectoService } from "../services/personalProyecto.service";
 import { personalService } from "../services/personal.service";
+import { projectService } from "../../projects/services/project.service";
 
 interface ProyectoOption {
   id: number;
@@ -13,7 +14,7 @@ interface ProyectoOption {
 interface EmpleadoOption {
   id: number;
   nombre: string;
-  perfil?: string;
+  idPerfil?: number;
 }
 
 interface PerfilOption {
@@ -27,17 +28,12 @@ interface Asignacion {
   idProyecto: number;
   nombreProyecto: string;
 }
-interface EmpleadoUI {
-  id: number;
-  nombre: string;
-  idPerfil?: number;
-}
 
 export const AltaPersonalProjectPage = () => {
   const navigate = useNavigate();
 
   const [proyectos, setProyectos] = useState<ProyectoOption[]>([]);
-  const [empleados, setEmpleados] = useState<EmpleadoUI[]>([]);
+  const [empleados, setEmpleados] = useState<EmpleadoOption[]>([]);
   const [perfiles, setPerfiles] = useState<PerfilOption[]>([]);
 
   const [selectedProyecto, setSelectedProyecto] = useState<number | "">("");
@@ -45,63 +41,59 @@ export const AltaPersonalProjectPage = () => {
   const [selectedPerfil, setSelectedPerfil] = useState<number | "">("");
 
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
+  const [loading, setLoading] = useState(false);
 
   /**
-   * ==========================================
-   * 🔥 LOAD INICIAL (MOCK / FUTURO SERVICE)
-   * ==========================================
+   * =========================
+   * LOAD DATA
+   * =========================
    */
   useEffect(() => {
-    loadInitialData();
+    loadData();
   }, []);
 
-  const loadInitialData = async () => {
+  const loadData = async () => {
     try {
-      // 🔥 EMPLEADOS
-      const empleadosOptions =
-        await personalService.getCatalogoEmpleadosOptions();
+      const empleadosData = await personalService.getAll();
 
       setEmpleados(
-        empleadosOptions.map((e) => ({
-          id: e.value,
-          nombre: e.label,
-          idPerfil: e.extra?.idPerfil, // 👈 clave
-        })),
+        empleadosData.map((e) => ({
+          id: e.id,
+          nombre: e.nombreCompleto,
+          idPerfil: (e as any).perfilId, // 👈 si no viene tipado
+        }))
       );
 
-      // 🔥 PERFILES
+      const proyectosData = await projectService.getProjects();
+
+      setProyectos(
+        proyectosData.map((p: any) => ({
+          id: p.id,
+          nombre: p.nombre,
+        }))
+      );
+
       const perfilesData = await personalService.getPerfiles();
       setPerfiles(perfilesData);
 
-      // 🔥 PROYECTOS
-      // 🔥 PROYECTOS
-      const proyectosOptions =
-        await personalService.getCatalogoProyectosOptions();
-
-      setProyectos(
-        proyectosOptions.map((p) => ({
-          id: p.value,
-          nombre: p.label,
-        })),
-      );
     } catch (error) {
-      console.error(error);
+      console.error("Error cargando catálogos:", error);
     }
   };
 
   /**
-   * ==========================================
-   * 🔥 FILTRO POR PERFIL
-   * ==========================================
+   * =========================
+   * FILTRO POR PERFIL
+   * =========================
    */
   const empleadosFiltrados = selectedPerfil
     ? empleados.filter((e) => e.idPerfil === selectedPerfil)
     : empleados;
 
   /**
-   * ==========================================
-   * 🔥 AGREGAR
-   * ==========================================
+   * =========================
+   * AGREGAR A LISTA
+   * =========================
    */
   const handleAgregar = () => {
     if (!selectedEmpleado || !selectedProyecto) return;
@@ -111,9 +103,10 @@ export const AltaPersonalProjectPage = () => {
 
     if (!empleado || !proyecto) return;
 
-    // evitar duplicados
     const exists = asignaciones.some(
-      (a) => a.idEmpleado === empleado.id && a.idProyecto === proyecto.id,
+      (a) =>
+        a.idEmpleado === empleado.id &&
+        a.idProyecto === proyecto.id
     );
 
     if (exists) return;
@@ -130,36 +123,41 @@ export const AltaPersonalProjectPage = () => {
   };
 
   /**
-   * ==========================================
-   * 🔥 ELIMINAR
-   * ==========================================
+   * =========================
+   * ELIMINAR
+   * =========================
    */
   const handleEliminar = (index: number) => {
     setAsignaciones((prev) => prev.filter((_, i) => i !== index));
   };
 
   /**
-   * ==========================================
-   * 🔥 GUARDAR
-   * ==========================================
+   * =========================
+   * GUARDAR (BULK)
+   * =========================
    */
   const handleGuardar = async () => {
     if (asignaciones.length === 0) return;
 
-    const idProyecto = asignaciones[0].idProyecto;
+    setLoading(true);
 
-    const idEmpleados = asignaciones.map((a) => a.idEmpleado);
+    try {
+      const requests = asignaciones.map((a) =>
+        empleadoProyectoService.create({
+          clave: `EP-${a.idEmpleado}-${a.idProyecto}-${Date.now()}`,
+          empleadoId: a.idEmpleado,
+          proyectoId: a.idProyecto,
+        })
+      );
 
-    const payload = {
-      idProyecto,
-      idEmpleados,
-    };
+      await Promise.all(requests);
 
-    console.log("🔥 PAYLOAD:", payload);
-
-    await personalService.asignarEmpleadosAProyecto(payload);
-
-    navigate("/personal/projects");
+      navigate("/personal/projects");
+    } catch (error) {
+      console.error("Error al guardar asignaciones:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle =
@@ -173,11 +171,17 @@ export const AltaPersonalProjectPage = () => {
       animate={{ opacity: 1, y: 0 }}
       className="p-8 space-y-6"
     >
-      <h1 className="text-2xl font-bold text-white">Nueva asignación</h1>
+      <h1 className="text-2xl font-bold text-white">
+        Nueva asignación Empleado - Proyecto
+      </h1>
 
       <div className="bg-padsa-surface border border-padsa-border rounded-2xl p-6 space-y-6">
-        {/* 🔥 COMBOS */}
+
+        {/* =========================
+            SELECTS
+        ========================== */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
           {/* Proyecto */}
           <div>
             <label className={labelStyle}>Proyecto</label>
@@ -197,7 +201,7 @@ export const AltaPersonalProjectPage = () => {
 
           {/* Perfil */}
           <div>
-            <label className={labelStyle}>Perfil (opcional)</label>
+            <label className={labelStyle}>Perfil</label>
             <select
               value={selectedPerfil}
               onChange={(e) => setSelectedPerfil(Number(e.target.value))}
@@ -229,7 +233,7 @@ export const AltaPersonalProjectPage = () => {
             </select>
           </div>
 
-          {/* Botón agregar */}
+          {/* Agregar */}
           <div className="flex items-end">
             <button
               onClick={handleAgregar}
@@ -238,29 +242,33 @@ export const AltaPersonalProjectPage = () => {
               Agregar
             </button>
           </div>
+
         </div>
 
-        {/* 🔥 TABLA */}
+        {/* =========================
+            LISTA
+        ========================== */}
         <div className="mt-6">
           <table className="w-full text-sm">
-            <thead className="text-left text-padsa-text-secondary">
+            <thead className="text-left text-gray-400">
               <tr>
                 <th>Empleado</th>
                 <th>Proyecto</th>
                 <th></th>
               </tr>
             </thead>
+
             <tbody>
-              {asignaciones.map((a, index) => (
-                <tr key={index} className="border-t border-padsa-border">
+              {asignaciones.map((a, i) => (
+                <tr key={i} className="border-t border-padsa-border">
                   <td>{a.nombreEmpleado}</td>
                   <td>{a.nombreProyecto}</td>
                   <td>
                     <button
-                      onClick={() => handleEliminar(index)}
+                      onClick={() => handleEliminar(i)}
                       className="text-red-500"
                     >
-                      <Trash2 size={16} />
+                      Quitar
                     </button>
                   </td>
                 </tr>
@@ -269,8 +277,11 @@ export const AltaPersonalProjectPage = () => {
           </table>
         </div>
 
-        {/* 🔥 BOTONES */}
+        {/* =========================
+            BOTONES
+        ========================== */}
         <div className="flex justify-end gap-4 pt-4 border-t border-padsa-border">
+
           <button
             onClick={() => navigate("/personal/projects")}
             className="px-4 py-2 bg-padsa-surface-light rounded-lg"
@@ -280,10 +291,12 @@ export const AltaPersonalProjectPage = () => {
 
           <button
             onClick={handleGuardar}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg"
+            disabled={loading || asignaciones.length === 0}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg disabled:opacity-50"
           >
-            Guardar
+            {loading ? "Guardando..." : "Guardar"}
           </button>
+
         </div>
       </div>
     </motion.div>

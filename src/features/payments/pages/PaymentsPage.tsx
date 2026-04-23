@@ -7,8 +7,9 @@ import { usePaymentColumns } from "../config/paymentColumns";
 import { paymentsService } from "../services/payments.service";
 
 import type { PaymentDto } from "../types/payments.types";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { personalService } from "../../personal/services/personal.service";
+import logo from "../../../assets/logo.png";
 
 // 🔹 Option type
 interface Option {
@@ -124,8 +125,8 @@ export const PaymentsPage = () => {
           onClick={() => navigate("/dashboard")}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-padsa-surface-light hover:bg-padsa-surface-light/70"
         >
-          <ArrowLeft size={16} />
-          Volver
+          <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
+          Inicio
         </button>
       </div>
 

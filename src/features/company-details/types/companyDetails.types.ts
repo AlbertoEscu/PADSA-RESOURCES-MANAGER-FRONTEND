@@ -1,26 +1,40 @@
-// 🔹 Status que usa el frontend: solo "Activo" o "Inactivo"
+// 🔹 Backend (API REAL)
+export type CompanyStatusDB = "A" | "I" | "P";
+
+export interface CompanyApi {
+  id: number;
+  clave: string;
+  nombre: string;
+  rfc: string;
+  direccionFiscal: string;
+  estatus: CompanyStatusDB;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+// 🔹 UI (Frontend limpio)
 export type CompanyStatus = "Activo" | "Inactivo";
 
-// 🔹 Status que usa el backend: "A" = Activo, "I" = Inactivo
-export type CompanyStatusDB = "A" | "I";
-
 export interface CompanyDto {
-  idCompania: number;
-  nombreCompania: string;
-  rfc: string;
-  direccionFiscal: string;
-  estatus: CompanyStatus; // UI
-  fechaAlta: string; // 👈 NUEVO
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
+  id: number;
+  clave: string;
+  nombre: string;
+  rfc?: string; // 👈 FIX
+  direccionFiscal?: string; // 👈 FIX
+  estatus: CompanyStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CompanyDtoDB {
-  idCompania: number;
-  nombreCompania: string;
-  rfc: string;
-  direccionFiscal: string;
-  estatus: CompanyStatusDB; // DB
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
+export const mapCompanyApiToDto = (api: CompanyApi): CompanyDto => ({
+  id: api.id,
+  clave: api.clave,
+  nombre: api.nombre,
+  rfc: api.rfc,
+  direccionFiscal: api.direccionFiscal,
+  estatus: api.estatus === "A" ? "Activo" : "Inactivo",
+  createdAt: api.createdAt,
+  updatedAt: api.updatedAt,
+});

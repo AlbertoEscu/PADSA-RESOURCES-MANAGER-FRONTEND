@@ -28,8 +28,7 @@ export const LoginPage = () => {
         password,
       });
 
-      login(response.token, response.username);
-
+      login(response.token, response.nombre, response.rol);
       navigate("/dashboard");
     } catch (error: any) {
       setError(

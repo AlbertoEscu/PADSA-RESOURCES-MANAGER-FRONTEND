@@ -1,39 +1,31 @@
 import { axiosInstance } from "../../../api/axiosInstance";
-import type { CompanyStatusDB } from "../types/companyDetails.types";
 
-// 🔹 Request/Response backend
+// 🔹 Request backend (ALINEADO)
 export interface CompaniaRequest {
-  nombreCompania: string;
-  rfc: string;
-  direccionFiscal: string;
-  usuarioModificacion: string;
-  estatus: CompanyStatusDB;
+  clave: string;
+  nombre: string;
+  rfc?: string;
+  direccionFiscal?: string;
 }
 
+// 🔹 Response backend (ALINEADO)
 export interface CompaniaResponse {
-  idCompania: number;
-  nombreCompania: string;
-  rfc: string;
-  direccionFiscal: string;
-  estatus: CompanyStatusDB;
-  fechaAlta: string; // 👈 NUEVO
-  fechaUltimaModificacion: string;
-  usuarioModificacion: string;
-}
-
-interface PaginatedCompaniaResponse {
-  content: CompaniaResponse[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
+  id: number;
+  clave: string;
+  nombre: string;
+  rfc?: string;
+  direccionFiscal?: string;
+  estatus: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export const companyDetailsService = {
-  async getCompanies(page = 0, size = 5): Promise<PaginatedCompaniaResponse> {
-    const { data } = await axiosInstance.get<PaginatedCompaniaResponse>("/companias", {
-      params: { page, size },
-    });
+
+  async getCompanies(): Promise<CompaniaResponse[]> {
+    const { data } = await axiosInstance.get<CompaniaResponse[]>("/companias");
     return data;
   },
 
@@ -52,9 +44,8 @@ export const companyDetailsService = {
     return data;
   },
 
-  async deleteCompany(id: string | number, usuarioModificacion: string): Promise<void> {
-    await axiosInstance.delete(`/v1/companias/${id}`, {
-      headers: { "X-Usuario-Modificacion": usuarioModificacion },
-    });
+  async deleteCompany(id: string | number): Promise<void> {
+    await axiosInstance.delete(`/companias/${id}`);
   },
+
 };

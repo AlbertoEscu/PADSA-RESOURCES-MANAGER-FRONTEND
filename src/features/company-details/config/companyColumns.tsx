@@ -6,8 +6,14 @@ export const companyColumns = (
   onEdit: (company: CompanyRow) => void,
 ): Column<CompanyRow>[] => [
   {
-    key: "nombreCompania",
+    key: "nombre",
     label: "Nombre compañía",
+    sortable: true,
+    filterable: true,
+  },
+  {
+    key: "clave",
+    label: "Clave",
     sortable: true,
     filterable: true,
   },
@@ -41,21 +47,22 @@ export const companyColumns = (
     ),
   },
   {
-    key: "fechaAlta",
+    key: "createdAt",
     label: "Fecha Alta",
+    sortable: true,
     render: (row) =>
-      row.fechaAlta ? new Date(row.fechaAlta).toLocaleDateString("es-MX") : "-",
+      row.createdAt
+        ? new Date(row.createdAt).toLocaleDateString("es-MX")
+        : "-",
   },
   {
-    key: "fechaUltimaModificacion",
-    label: "Fecha modificación",
+    key: "updatedAt",
+    label: "Última modificación",
     sortable: true,
-    render: (row) => new Date(row.fechaUltimaModificacion).toLocaleDateString(),
-  },
-  {
-    key: "usuarioModificacion",
-    label: "Usuario modificación",
-    sortable: true,
+    render: (row) =>
+      row.updatedAt
+        ? new Date(row.updatedAt).toLocaleDateString("es-MX")
+        : "-",
   },
   {
     key: "acciones",

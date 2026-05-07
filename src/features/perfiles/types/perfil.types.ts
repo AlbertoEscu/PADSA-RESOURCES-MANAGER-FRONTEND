@@ -2,6 +2,7 @@ export interface PerfilRequestDTO {
   clave: string;
   nombre: string;
   descripcion?: string;
+  estatus: string;
 }
 
 export interface PerfilResponseDTO {

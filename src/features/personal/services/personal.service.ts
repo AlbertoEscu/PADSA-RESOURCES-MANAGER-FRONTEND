@@ -83,6 +83,7 @@ const mapToFormData = (
   nss?: string;
   fechaAlta?: string;
   fechaBaja?: string;
+  estatus?: string;
 } => ({
   clave: data.clave ?? "",
   companiaId: data.companiaId ?? 0,
@@ -107,6 +108,7 @@ const mapToFormData = (
 
   fechaAlta: data.fechaAlta ?? "",
   fechaBaja: data.fechaBaja ?? "",
+  estatus: data.estatus ?? "A",
 });
 
 export const personalService = {

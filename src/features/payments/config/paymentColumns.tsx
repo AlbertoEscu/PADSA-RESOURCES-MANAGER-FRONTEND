@@ -15,11 +15,12 @@ const statusMap: Record<
 };
 
 export const usePaymentColumns = (
-  onUpdateRow: (updated: PaymentDto) => void
+  onUpdateRow: (updated: PaymentDto) => void,
+  canEdit: boolean
 ): Column<PaymentDto>[] => {
   const usuario = localStorage.getItem("usuario") || "admin";
 
-  return [
+  const columns: Column<PaymentDto>[] = [
     { key: "idPago", label: "ID Pago", sortable: true },
     {
       key: "nombreEmpleado",
@@ -46,7 +47,10 @@ export const usePaymentColumns = (
     },
     { key: "updatedAt", label: "Última Modificación", sortable: true },
     { key: "updatedBy", label: "Usuario Modificación", sortable: true },
-    {
+  ];
+
+  if (canEdit) {
+    columns.push({
       key: "acciones",
       label: "Acciones",
       render: (row) => {
@@ -101,6 +105,8 @@ export const usePaymentColumns = (
           );
         }
       },
-    },
-  ];
+    });
+  }
+
+  return columns;
 };

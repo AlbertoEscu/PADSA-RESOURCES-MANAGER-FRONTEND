@@ -22,4 +22,5 @@ export type ClientForm = {
   domicilioFiscal?: string;
   email?: string;
   telefono?: string;
+  estatus: string;
 };

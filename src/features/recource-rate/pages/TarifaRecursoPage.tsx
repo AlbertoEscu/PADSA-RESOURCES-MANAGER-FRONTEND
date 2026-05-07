@@ -9,8 +9,10 @@ import { tarifaService } from "../services/tarifaRecurso.service";
 
 import { Plus } from "lucide-react";
 import logo from "../../../assets/logo.png";
+import { useAuth } from "../../auth/context/useAuth";
 
 export const TarifaRecursoPage = () => {
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [data, setData] = useState<TarifaResponse[]>([]);
@@ -25,7 +27,7 @@ export const TarifaRecursoPage = () => {
     Partial<Record<keyof TarifaResponse, string>>
   >({});
 
-  const columns = useTarifaRecursoColumns();
+  const columns = useTarifaRecursoColumns(isAdmin);
 
   const handleFilterChange = (field: keyof TarifaResponse, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -51,8 +53,8 @@ export const TarifaRecursoPage = () => {
             ]
               .filter(Boolean)
               .some((value) =>
-                String(value).toLowerCase().includes(searchLower)
-              )
+                String(value).toLowerCase().includes(searchLower),
+              ),
           );
         }
 
@@ -62,7 +64,7 @@ export const TarifaRecursoPage = () => {
             filtered = filtered.filter((item) =>
               String(item[key as keyof TarifaResponse] ?? "")
                 .toLowerCase()
-                .includes(value.toLowerCase())
+                .includes(value.toLowerCase()),
             );
           }
         });
@@ -96,9 +98,7 @@ export const TarifaRecursoPage = () => {
     >
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">
-          Tarifas por Recurso
-        </h1>
+        <h1 className="text-2xl font-bold text-white">Tarifas por Recurso</h1>
 
         <div className="flex gap-3">
           <button
@@ -108,13 +108,14 @@ export const TarifaRecursoPage = () => {
             <img src={logo} alt="Logo" className="w-5 h-5 object-contain" />
             Inicio
           </button>
-
-          <button
-            onClick={() => navigate("/rates/new")}
-            className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
-          >
-            <Plus size={16} /> Nuevo Registro
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/rates/new")}
+              className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
+            >
+              <Plus size={16} /> Nuevo Registro
+            </button>
+          )}
         </div>
       </div>
 

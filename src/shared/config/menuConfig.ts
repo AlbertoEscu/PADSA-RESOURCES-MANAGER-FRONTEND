@@ -29,11 +29,6 @@ export interface ModuleMenu {
 }
 
 export const menuConfig: ModuleMenu[] = [
-  /**
-   * ==========================================
-   * DASHBOARD (MENÚ PRINCIPAL)
-   * ==========================================
-   */
   {
     basePath: "/dashboard",
     items: [
@@ -43,68 +38,28 @@ export const menuConfig: ModuleMenu[] = [
         icon: LayoutDashboard,
       },
       {
-        label: "Detalles compañía",
+        label: "Catálogos",
         icon: Building2,
         children: [
-          {
-            label: "Datos Generales",
-            path: "/companies",
-          },
+          { label: "Personal", path: "/personal" },
+          { label: "Perfiles", path: "/perfiles" },
+          { label: "Clientes", path: "/clients" },
+          { label: "Proyectos", path: "/projects" },
+          { label: "Compañías", path: "/companies" },
+          { label: "Tarifas", path: "/rates" },
         ],
       },
       {
-        label: "Horas Mes/Recurso",
-        icon: Clock,
-        children: [
-          {
-            label: "Consulta Horas",
-            path: "/hours",
-          },
-        ],
-      },
-      {
-        label: "Información pagos",
-        icon: CreditCard,
-        children: [
-          {
-            label: "Consulta Pagos",
-            path: "/payments",
-          },
-        ],
-      },
-      {
-        label: "Tarifas recurso",
-        icon: DollarSign,
-        children: [
-          {
-            label: "Consulta Tarifas",
-            path: "/rates",
-          },
-        ],
-      },
-      {
-        label: "Generar reportes",
-        path: "/reports",
+        label: "Reportes",
         icon: FileText,
-      },
-      {
-        label: "Perfiles",
-        icon: BadgeCheck,
         children: [
-          {
-            label: "Consulta Perfiles",
-            path: "/perfiles",
-          },
+          { label: "Reporte Axity", path: "/reports" },
+          { label: "Horas Mes/Recurso", path: "/hours" },
         ],
       },
     ],
   },
 
-  /**
-   * ==========================================
-   * MÓDULO COMPANIES
-   * ==========================================
-   */
   {
     basePath: "/companies",
     title: "Detalles de compañía",
@@ -113,32 +68,14 @@ export const menuConfig: ModuleMenu[] = [
         label: "Compañía",
         icon: Building2,
         children: [
-          {
-            label: "Datos Generales",
-            path: "/companies",
-          },
-
-          {
-            label: "Nueva compañía",
-            path: "/companies/new",
-            hidden: true,
-          },
-
-          {
-            label: "Editar compañía",
-            path: "/companies/edit/",
-            hidden: true,
-          },
+          { label: "Datos Generales", path: "/companies" },
+          { label: "Nueva compañía", path: "/companies/new", hidden: true },
+          { label: "Editar compañía", path: "/companies/edit/", hidden: true },
         ],
       },
     ],
   },
 
-  /**
-   * ==========================================
-   * MÓDULO HORAS MES / RECURSO
-   * ==========================================
-   */
   {
     basePath: "/hours",
     title: "Horas Mes / Recurso",
@@ -147,97 +84,45 @@ export const menuConfig: ModuleMenu[] = [
         label: "Horas",
         icon: Clock,
         children: [
-          {
-            label: "Consulta Horas",
-            path: "/hours",
-          },
-
-          {
-            label: "Nuevo registro",
-            path: "/hours/new",
-            hidden: true,
-          },
-
-          {
-            label: "Editar registro",
-            path: "/hours/edit/",
-            hidden: true,
-          },
+          { label: "Consulta Horas", path: "/hours" },
+          { label: "Nuevo registro", path: "/hours/new", hidden: true },
+          { label: "Editar registro", path: "/hours/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO INFORMACION DE PAGOS
-   * ==========================================
-   */
+
   {
     basePath: "/payments",
-    title: "Información de Pagos",
+    title: "Pagos",
     items: [
       {
         label: "Pagos",
         icon: CreditCard,
         children: [
-          {
-            label: "Consulta Pagos",
-            path: "/payments",
-          },
-
-          {
-            label: "Nuevo registro",
-            path: "/payments/new",
-            hidden: true,
-          },
-
-          {
-            label: "Editar registro",
-            path: "/payments/edit/",
-            hidden: true,
-          },
+          { label: "Consulta Pagos", path: "/payments" },
+          { label: "Nuevo registro", path: "/payments/new", hidden: true },
+          { label: "Editar registro", path: "/payments/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO INFORMACION DE Tarifas por recurso
-   * ==========================================
-   */
+
   {
     basePath: "/rates",
-    title: "Información de Tarifas por Recurso",
+    title: "Tarifas",
     items: [
       {
         label: "Tarifas",
         icon: DollarSign,
         children: [
-          {
-            label: "Consulta Tarifas",
-            path: "/rates",
-          },
-
-          {
-            label: "Nuevo registro",
-            path: "/rates/new",
-            hidden: true,
-          },
-
-          {
-            label: "Editar registro",
-            path: "/rates/edit/",
-            hidden: true,
-          },
+          { label: "Consulta Tarifas", path: "/rates" },
+          { label: "Nuevo registro", path: "/rates/new", hidden: true },
+          { label: "Editar registro", path: "/rates/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO PERSONAL
-   * ==========================================
-   */
 
   {
     basePath: "/personal",
@@ -247,50 +132,14 @@ export const menuConfig: ModuleMenu[] = [
         label: "Personal",
         icon: Building2,
         children: [
-          {
-            label: "Datos Generales",
-            path: "/personal",
-          },
-          {
-            label: "Proyecto",
-            path: "/personal/projects",
-          },
-        ],
-      },
-
-      // ✅ WIZARD (oculto pero usable)
-      {
-        label: "Alta Personal",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Datos Generales",
-            path: "/personal/new",
-          },
-        ],
-      },
-
-      // ✅ SOLO EDIT oculto (opcional)
-      {
-        label: "Editar personal",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Editar",
-            path: "/personal/edit/",
-            hidden: true,
-          },
+          { label: "Datos Generales", path: "/personal" },
+          { label: "Proyecto", path: "/personal/projects" },
+          { label: "Nuevo personal", path: "/personal/new", hidden: true },
+          { label: "Editar personal", path: "/personal/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO Proyectos
-   * ==========================================
-   */
 
   {
     basePath: "/projects",
@@ -300,46 +149,13 @@ export const menuConfig: ModuleMenu[] = [
         label: "Proyectos",
         icon: Building2,
         children: [
-          {
-            label: "Datos Generales",
-            path: "/projects",
-          },
-        ],
-      },
-
-      // ✅ WIZARD (oculto pero usable)
-      {
-        label: "Alta Proyecto",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Datos Generales",
-            path: "/projects/new",
-          },
-        ],
-      },
-
-      // ✅ SOLO EDIT oculto (opcional)
-      {
-        label: "Editar Proyecto",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Editar",
-            path: "/projects/edit/",
-            hidden: true,
-          },
+          { label: "Datos Generales", path: "/projects" },
+          { label: "Nuevo proyecto", path: "/projects/new", hidden: true },
+          { label: "Editar proyecto", path: "/projects/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO CLIENTES
-   * ==========================================
-   */
 
   {
     basePath: "/clients",
@@ -349,46 +165,14 @@ export const menuConfig: ModuleMenu[] = [
         label: "Clientes",
         icon: Building2,
         children: [
-          {
-            label: "Datos Generales",
-            path: "/clients",
-          },
-        ],
-      },
-
-      // ✅ WIZARD (oculto pero usable)
-      {
-        label: "Alta Cliente",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Datos Generales",
-            path: "/clients/new",
-          },
-        ],
-      },
-
-      // ✅ SOLO EDIT oculto (opcional)
-      {
-        label: "Editar Cliente",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Editar",
-            path: "/clients/edit/",
-            hidden: true,
-          },
+          { label: "Datos Generales", path: "/clients" },
+          { label: "Nuevo cliente", path: "/clients/new", hidden: true },
+          { label: "Editar cliente", path: "/clients/edit/", hidden: true },
         ],
       },
     ],
   },
-  /**
-   * ==========================================
-   * MÓDULO PERFILES
-   * ==========================================
-   */
+
   {
     basePath: "/perfiles",
     title: "Perfiles",
@@ -397,37 +181,9 @@ export const menuConfig: ModuleMenu[] = [
         label: "Perfiles",
         icon: Building2,
         children: [
-          {
-            label: "Consulta Perfiles",
-            path: "/perfiles",
-          },
-        ],
-      },
-
-      // ✅ CREATE (oculto)
-      {
-        label: "Alta Perfil",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Nuevo Perfil",
-            path: "/perfiles/new",
-          },
-        ],
-      },
-
-      // ✅ EDIT (oculto)
-      {
-        label: "Editar Perfil",
-        icon: Building2,
-        hidden: true,
-        children: [
-          {
-            label: "Editar",
-            path: "/perfiles/edit/",
-            hidden: true,
-          },
+          { label: "Consulta Perfiles", path: "/perfiles" },
+          { label: "Nuevo perfil", path: "/perfiles/new", hidden: true },
+          { label: "Editar perfil", path: "/perfiles/edit/", hidden: true },
         ],
       },
     ],

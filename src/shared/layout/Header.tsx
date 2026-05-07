@@ -1,47 +1,31 @@
 import { LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../../features/auth/context/useAuth";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
 
 export const Header = () => {
-
   const { user, logout } = useAuth();
 
   const location = useLocation();
 
-  const navigate = useNavigate();
-
   const [open, setOpen] = useState(false);
 
-
   const getTitle = () => {
-
     if (location.pathname.includes("dashboard")) return "Dashboard";
 
-    if (location.pathname.includes("personal")) return "Personal";
-
-    if (location.pathname.includes("clients")) return "Clientes";
-
-    if (location.pathname.includes("projects")) return "Proyectos";
-
     return "PADSA";
-
   };
 
-
   const getInitials = () => {
-
     if (!user?.username) return "?";
 
     return user.username.charAt(0).toUpperCase();
-
   };
 
-
   return (
-
     <header
       className="
+       relative z-50
         h-16
         bg-padsa-surface/80
         backdrop-blur-xl
@@ -51,70 +35,15 @@ export const Header = () => {
         shadow-sm
       "
     >
-
       {/* TITLE */}
       <h1 className="text-padsa-text-primary font-semibold text-lg">
         {getTitle()}
       </h1>
 
-
       {/* RIGHT SECTION */}
       <div className="flex items-center gap-4">
-
-        {/* ✅ CATALOG BUTTONS (FUERA DEL BUTTON PRINCIPAL) */}
-        <div className="hidden md:flex items-center gap-2">
-
-          <button
-            onClick={() => navigate("/personal")}
-            className="
-              px-3 py-1.5
-              text-sm
-              text-padsa-text-secondary
-              hover:text-white
-              hover:bg-padsa-surface-light
-              rounded-lg
-              transition
-            "
-          >
-            Personal
-          </button>
-
-          <button
-            onClick={() => navigate("/clients")}
-            className="
-              px-3 py-1.5
-              text-sm
-              text-padsa-text-secondary
-              hover:text-white
-              hover:bg-padsa-surface-light
-              rounded-lg
-              transition
-            "
-          >
-            Clientes
-          </button>
-
-          <button
-            onClick={() => navigate("/projects")}
-            className="
-              px-3 py-1.5
-              text-sm
-              text-padsa-text-secondary
-              hover:text-white
-              hover:bg-padsa-surface-light
-              rounded-lg
-              transition
-            "
-          >
-            Proyectos
-          </button>
-
-        </div>
-
-
         {/* AVATAR DROPDOWN */}
         <div className="relative">
-
           <button
             onClick={() => setOpen(!open)}
             className="
@@ -125,7 +54,6 @@ export const Header = () => {
               transition-all duration-200
             "
           >
-
             {/* avatar */}
             <div
               className="
@@ -148,28 +76,24 @@ export const Header = () => {
                 ${open ? "rotate-180" : ""}
               `}
             />
-
           </button>
-
 
           {/* DROPDOWN */}
           {open && (
-
             <div
               className="
-                absolute right-0 mt-2
-                w-48
-                bg-padsa-surface
-                border border-padsa-border
-                rounded-xl
-                shadow-lg
-                overflow-hidden
-                z-50
-              "
+    absolute right-0 mt-2
+    w-48
+    bg-padsa-surface
+    border border-padsa-border
+    rounded-xl
+    shadow-lg
+    overflow-hidden
+    z-[9999]
+    pointer-events-auto
+  "
             >
-
               <div className="px-4 py-3 border-b border-padsa-border">
-
                 <p className="text-sm text-padsa-text-primary font-medium">
                   {user?.username}
                 </p>
@@ -177,12 +101,13 @@ export const Header = () => {
                 <p className="text-xs text-padsa-text-secondary">
                   Usuario autenticado
                 </p>
-
               </div>
 
-
               <button
-                onClick={() => logout(false)}
+                onClick={() => {
+                  console.log("CLICK LOGOUT");
+                  logout(false);
+                }}
                 className="
                   w-full
                   flex items-center gap-2
@@ -196,17 +121,10 @@ export const Header = () => {
                 <LogOut size={16} />
                 Cerrar sesión
               </button>
-
             </div>
-
           )}
-
         </div>
-
       </div>
-
     </header>
-
   );
-
 };

@@ -12,12 +12,12 @@ import type {
   PersonalSkillsDto,
 } from "../types/personal.types";
 
-import { ArrowLeft, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/context/useAuth";
 
 export const PersonalProfilePage = () => {
-  const profileColumns = usePersonalProfileColumns();
-  const skillsColumns = usePersonalSkillsColumns();
+  const { isAdmin } = useAuth();
+  const profileColumns = usePersonalProfileColumns(isAdmin);
+  const skillsColumns = usePersonalSkillsColumns(isAdmin);
 
   const navigate = useNavigate();
 

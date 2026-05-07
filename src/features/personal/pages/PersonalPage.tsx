@@ -11,10 +11,13 @@ import { Plus } from "lucide-react";
 import type { PersonalDto } from "../types/personal.types";
 
 import logo from "../../../assets/logo.png";
+import { useAuth } from "../../auth/context/useAuth";
 
 export const PersonalPage = () => {
+
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
-  const columns = usePersonalColumns();
+  const columns = usePersonalColumns(isAdmin);
 
   const [data, setData] = useState<PersonalDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,6 +118,7 @@ useEffect(() => {
             Inicio
           </button>
 
+{isAdmin && (
           <button
             onClick={() => navigate("/personal/new")}
             className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
@@ -122,7 +126,7 @@ useEffect(() => {
             <Plus size={16} />
             Nuevo Registro
           </button>
-
+)}
         </div>
 
       </div>

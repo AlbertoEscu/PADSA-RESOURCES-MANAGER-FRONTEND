@@ -10,11 +10,13 @@ import type { ProjectDto } from "../types/project.types";
 
 import { Plus } from "lucide-react";
 import logo from "../../../assets/logo.png";
+import { useAuth } from "../../auth/context/useAuth";
 
 export type ProjectTableDto = ProjectDto;
 
 export const ProjectsPage = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const [data, setData] = useState<ProjectTableDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,10 +32,7 @@ export const ProjectsPage = () => {
   const pageSize = 5;
 
   // ✅ handler correcto (EL FIX DEL ERROR)
-  const handleFilterChange = (
-    field: keyof ProjectTableDto,
-    value: string
-  ) => {
+  const handleFilterChange = (field: keyof ProjectTableDto, value: string) => {
     setFilters((prev) => {
       const updated = { ...prev };
 
@@ -50,7 +49,7 @@ export const ProjectsPage = () => {
     });
   };
 
-  const columns = projectColumns(handleEdit);
+  const columns = projectColumns(handleEdit, isAdmin);
 
   // 🔥 carga real
   const loadData = async () => {
@@ -84,18 +83,16 @@ export const ProjectsPage = () => {
         : true;
 
       // 🔎 filtros por columna
-      const matchesFilters = Object.entries(filters).every(
-        ([key, value]) => {
-          if (!value) return true;
+      const matchesFilters = Object.entries(filters).every(([key, value]) => {
+        if (!value) return true;
 
-          const fieldValue = item[key as keyof ProjectTableDto];
+        const fieldValue = item[key as keyof ProjectTableDto];
 
-          return fieldValue
-            ?.toString()
-            .toLowerCase()
-            .includes(value.toLowerCase());
-        }
-      );
+        return fieldValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      });
 
       return matchesSearch && matchesFilters;
     });
@@ -134,13 +131,15 @@ export const ProjectsPage = () => {
             Inicio
           </button>
 
-          <button
-            onClick={() => navigate("/projects/new")}
-            className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
-          >
-            <Plus size={16} />
-            Nuevo Registro
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/projects/new")}
+              className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
+            >
+              <Plus size={16} />
+              Nuevo Registro
+            </button>
+          )}
         </div>
       </div>
 

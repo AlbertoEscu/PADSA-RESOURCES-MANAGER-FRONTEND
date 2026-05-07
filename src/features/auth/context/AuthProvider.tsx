@@ -8,7 +8,6 @@ interface Props {
 }
 
 export const AuthProvider = ({ children }: Props) => {
-
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,13 +19,11 @@ export const AuthProvider = ({ children }: Props) => {
 
   // 🔹 RESTORE SESSION
   useEffect(() => {
-
     const storedToken = localStorage.getItem("token");
     const storedNombre = localStorage.getItem("nombre");
     const storedRol = localStorage.getItem("rol");
 
     if (storedToken && !isTokenExpired(storedToken)) {
-
       setToken(storedToken);
 
       setUser({
@@ -36,22 +33,18 @@ export const AuthProvider = ({ children }: Props) => {
       });
 
       scheduleAutoLogout(storedToken);
-
     } else {
-
-      logout(false);
-
-    }
+  setToken(null);
+  setUser(null);
+}
 
     setupInterceptors(logout);
 
     setLoading(false);
-
   }, []);
 
   // 🔹 LOGIN
   const login = (jwtToken: string, nombre?: string, rol?: string) => {
-
     localStorage.setItem("token", jwtToken);
 
     if (nombre) localStorage.setItem("nombre", nombre);
@@ -68,24 +61,24 @@ export const AuthProvider = ({ children }: Props) => {
     setSessionExpired(false);
 
     scheduleAutoLogout(jwtToken);
-
   };
 
   // 🔹 LOGOUT
-  const logout = (expired = false) => {
+const logout = (expired = false) => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("nombre");
+  localStorage.removeItem("rol");
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("nombre");
-    localStorage.removeItem("rol");
+  setToken(null);
+  setUser(null);
 
-    setToken(null);
-    setUser(null);
+  if (expired) setSessionExpired(true);
 
-    if (expired) setSessionExpired(true);
+  if (logoutTimer) clearTimeout(logoutTimer);
 
-    if (logoutTimer) clearTimeout(logoutTimer);
-
-  };
+  // 👇 usa navigate en vez de reload duro (opcional mejor)
+  window.location.replace("/login");
+};
 
   const clearSessionExpired = () => {
     setSessionExpired(false);
@@ -93,7 +86,6 @@ export const AuthProvider = ({ children }: Props) => {
 
   // 🔹 AUTO LOGOUT
   function scheduleAutoLogout(token: string) {
-
     const payload = parseJwt(token);
     if (!payload) return;
 
@@ -104,11 +96,7 @@ export const AuthProvider = ({ children }: Props) => {
       return;
     }
 
-    logoutTimer = window.setTimeout(
-      () => logout(true),
-      expiresIn
-    );
-
+    logoutTimer = window.setTimeout(() => logout(true), expiresIn);
   }
 
   return (
@@ -121,7 +109,7 @@ export const AuthProvider = ({ children }: Props) => {
         isAuthenticated,
         loading,
         sessionExpired,
-        clearSessionExpired
+        clearSessionExpired,
       }}
     >
       {children}

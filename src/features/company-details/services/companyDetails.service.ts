@@ -6,6 +6,7 @@ export interface CompaniaRequest {
   nombre: string;
   rfc?: string;
   direccionFiscal?: string;
+  estatus: string;
 }
 
 // 🔹 Response backend (ALINEADO)

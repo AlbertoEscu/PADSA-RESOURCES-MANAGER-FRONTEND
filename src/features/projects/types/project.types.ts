@@ -11,6 +11,7 @@ export interface ProjectForm {
   gerente?: string;
   areaNegocio?: string;
   horasEstimadas?: number;
+  estatus: string;
 }
 
 // ✅ DTO (response del backend)

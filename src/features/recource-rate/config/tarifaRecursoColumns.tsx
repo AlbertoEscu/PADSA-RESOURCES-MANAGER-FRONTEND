@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import type { Column } from "../../../shared/components/ui/DataTable";
 import type { TarifaResponse } from "../types/tarifaRecurso.types";
 
-export const useTarifaRecursoColumns = (): Column<TarifaResponse>[] => {
+export const useTarifaRecursoColumns = (canEdit: boolean): Column<TarifaResponse>[] => {
   const navigate = useNavigate();
 
-  return [
+  const columns: Column<TarifaResponse>[] = [
     { key: "id", label: "ID Tarifa", sortable: true },
     { key: "proyectoId", label: "ID Proyecto", sortable: true },
     { key: "empleadoId", label: "ID Recurso", sortable: true },
@@ -23,28 +23,31 @@ export const useTarifaRecursoColumns = (): Column<TarifaResponse>[] => {
     { key: "montoRealFacturar", label: "Monto Real a Facturar", sortable: true },
     { key: "updatedAt", label: "Fecha Modificación", sortable: true },
     { key: "updatedBy", label: "Usuario", sortable: true },
-{
-  key: "estatus",
-  label: "Estatus",
-  sortable: true,
-  filterable: true,
-  render: (row) => {
-    const activo = row.estatus === "A";
-
-    return (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-medium ${
-          activo
-            ? "bg-green-500/20 text-green-400"
-            : "bg-red-500/20 text-red-400"
-        }`}
-      >
-        {activo ? "Activo" : "Inactivo"}
-      </span>
-    );
-  },
-},
     {
+      key: "estatus",
+      label: "Estatus",
+      sortable: true,
+      filterable: true,
+      render: (row) => {
+        const activo = row.estatus === "A";
+
+        return (
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              activo
+                ? "bg-green-500/20 text-green-400"
+                : "bg-red-500/20 text-red-400"
+            }`}
+          >
+            {activo ? "Activo" : "Inactivo"}
+          </span>
+        );
+      },
+    },
+  ];
+
+  if (canEdit) {
+    columns.push({
       key: "acciones",
       label: "Acciones",
       render: (row) => (
@@ -57,6 +60,8 @@ export const useTarifaRecursoColumns = (): Column<TarifaResponse>[] => {
           <Pencil size={14} /> Editar
         </button>
       ),
-    },
-  ];
+    });
+  }
+
+  return columns;
 };

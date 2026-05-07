@@ -10,12 +10,14 @@ import type { ClientDto } from "../types/client.types";
 
 import { Plus } from "lucide-react";
 import logo from "../../../assets/logo.png";
+import { useAuth } from "../../../features/auth/context/useAuth";
 
 export const ClientsPage = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const [allData, setAllData] = useState<ClientDto[]>([]); // 🔥 TODO
-  const [data, setData] = useState<ClientDto[]>([]);       // 🔥 PAGINADO
+  const [data, setData] = useState<ClientDto[]>([]); // 🔥 PAGINADO
   const [loading, setLoading] = useState(true);
 
   const [page, setPage] = useState(1);
@@ -40,7 +42,7 @@ export const ClientsPage = () => {
     });
   };
 
-  const columns = clientColumns(handleEdit);
+  const columns = clientColumns(handleEdit, isAdmin);
 
   /**
    * 🔥 CARGA COMPLETA
@@ -97,13 +99,15 @@ export const ClientsPage = () => {
             Inicio
           </button>
 
-          <button
-            onClick={() => navigate("/clients/new")}
-            className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg"
-          >
-            <Plus size={16} />
-            Nuevo Registro
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/clients/new")}
+              className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg"
+            >
+              <Plus size={16} />
+              Nuevo Registro
+            </button>
+          )}
         </div>
       </div>
 
@@ -112,11 +116,9 @@ export const ClientsPage = () => {
         data={data}
         columns={columns}
         loading={loading}
-
         page={page}
         pageSize={pageSize}
         total={allData.length} // 🔥 TOTAL REAL
-
         filters={filters}
         globalSearch={globalSearch}
         onGlobalSearchChange={setGlobalSearch}

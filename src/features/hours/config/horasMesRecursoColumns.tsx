@@ -16,10 +16,8 @@ export const horasMesRecursoColumns = (
   { key: "nombreProfesional", label: "Nombre", filterable: true },
 
   { key: "axityTribe", label: "Tribe" },
-  { key: "axitySquad", label: "Squad" },
-  { key: "lead", label: "Lead" },
-  { key: "wm", label: "WM" },
-  { key: "techLead", label: "Tech Lead" },
+  { key: "axitySquadLead", label: " Axity Squad Lead" },
+  { key: "wmTechLead", label: "WM Tech Lead" },
 
   { key: "idJira", label: "Jira" },
 

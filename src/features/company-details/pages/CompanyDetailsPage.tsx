@@ -5,19 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { DataTable } from "../../../shared/components/ui/DataTable";
 import { companyColumns } from "../config/companyColumns";
 import { companyDetailsService } from "../services/companyDetails.service";
-import type {
-  CompanyDto,
-  CompanyStatus,
-  CompanyStatusDB,
-} from "../types/companyDetails.types";
+import type { CompanyDto } from "../types/companyDetails.types";
 
 import { Plus } from "lucide-react";
 import { showError } from "../../../shared/utils/toast";
 import logo from "../../../assets/logo.png";
-
-// 🔹 Normaliza status de DB a UI
-const normalizeStatusFromDB = (estatus: CompanyStatusDB): CompanyStatus =>
-  estatus === "A" ? "Activo" : "Inactivo";
+import { useAuth } from "../../auth/context/useAuth";
 
 export type CompanyRow = CompanyDto & { id: number };
 
@@ -32,6 +25,7 @@ export const CompanyDetailsPage = () => {
   const [filters, setFilters] = useState<
     Partial<Record<keyof CompanyRow, string>>
   >({});
+  const { isAdmin } = useAuth();
 
   const pageSize = 5;
 
@@ -39,7 +33,7 @@ export const CompanyDetailsPage = () => {
     navigate(`/companies/edit/${company.id}`); // ✅ corregido
   };
 
-  const columns = companyColumns(handleEdit);
+  const columns = companyColumns(handleEdit, isAdmin);
 
   const handleFilterChange = (field: keyof CompanyRow, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -55,7 +49,6 @@ export const CompanyDetailsPage = () => {
         ...c,
         id: c.id,
         nombre: c.nombre, // opcional pero explícito
-        estatus: normalizeStatusFromDB(c.estatus as CompanyStatusDB),
       }));
 
       setData(mapped);
@@ -98,12 +91,14 @@ export const CompanyDetailsPage = () => {
             Inicio
           </button>
 
+{isAdmin && (
           <button
             onClick={() => navigate("/companies/new")}
             className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
           >
             <Plus size={16} /> Nuevo Registro
           </button>
+          )}
         </div>
       </div>
 

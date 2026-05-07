@@ -3,7 +3,7 @@ import type { PerfilDto } from "../types/perfil.types";
 import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const usePerfilColumns = () => {
+export const usePerfilColumns = (canEdit: boolean) => {
   const navigate = useNavigate();
 
   const columns: Column<PerfilDto>[] = [
@@ -24,12 +24,26 @@ export const usePerfilColumns = () => {
     {
       key: "estatus",
       label: "Estatus",
+      render: (row) => (
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            row.estatus === "A"
+              ? "bg-green-500/20 text-green-400"
+              : "bg-red-500/20 text-red-400"
+          }`}
+        >
+          {row.estatus === "A" ? "Activo" : "Inactivo"}
+        </span>
+      ),
     },
     {
       key: "updatedAt",
       label: "Última actualización",
     },
-    {
+  ];
+
+  if (canEdit) {
+    columns.push({
       key: "acciones",
       label: "",
       render: (row) => (
@@ -48,8 +62,8 @@ export const usePerfilColumns = () => {
           Editar
         </button>
       ),
-    },
-  ];
+    });
+  }
 
   return columns;
 };

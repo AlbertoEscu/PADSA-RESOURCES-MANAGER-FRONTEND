@@ -1,23 +1,21 @@
+import { axiosInstance } from "../../../api/axiosInstance";
 import type { ResourceDto } from "../types/dashboard.types";
-
-// cuando exista backend real:
-// import { axiosInstance } from "../../../api/axiosInstance";
+import type { DashboardKpis } from "../types/dashboard.types";
 
 export const dashboardService = {
 
+  async getKpis(): Promise<DashboardKpis> {
+    return axiosInstance
+      .get<DashboardKpis>("/dashboard/kpis")
+      .then(res => res.data);
+  },
+
   async getResources(): Promise<ResourceDto[]> {
 
-    // 🔵 Cuando exista endpoint real:
-    /*
-    return axiosInstance
-      .get<ResourceDto[]>("/dashboard/resources")
-      .then(res => res.data);
-    */
-
-    // 🔵 Mock temporal
+    // 🔵 Si aún no tienes endpoint real, deja mock
     await new Promise(resolve => setTimeout(resolve, 900));
 
-    const mock: ResourceDto[] = [
+    return [
       { id: 1, numeroRecurso: "REC-001", numeroPersonal: "PER-101", tipoRecurso: "Consultor", numeroProyecto: "PRJ-201" },
       { id: 2, numeroRecurso: "REC-002", numeroPersonal: "PER-102", tipoRecurso: "Dev", numeroProyecto: "PRJ-202" },
       { id: 3, numeroRecurso: "REC-003", numeroPersonal: "PER-103", tipoRecurso: "QA", numeroProyecto: "PRJ-203" },
@@ -25,8 +23,6 @@ export const dashboardService = {
       { id: 5, numeroRecurso: "REC-005", numeroPersonal: "PER-105", tipoRecurso: "PM", numeroProyecto: "PRJ-205" },
       { id: 6, numeroRecurso: "REC-006", numeroPersonal: "PER-106", tipoRecurso: "Consultor", numeroProyecto: "PRJ-206" },
     ];
-
-    return mock;
   }
 
 };

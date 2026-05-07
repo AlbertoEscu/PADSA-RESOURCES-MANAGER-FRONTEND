@@ -27,6 +27,7 @@ export const EditProjectPage = () => {
     gerente: "",
     areaNegocio: "",
     horasEstimadas: 0,
+    estatus: "A",
   });
 
   // 🔥 cargar datos en edición
@@ -46,6 +47,7 @@ export const EditProjectPage = () => {
         gerente: project.gerente || "",
         areaNegocio: project.areaNegocio || "",
         horasEstimadas: project.horasEstimadas || 0,
+        estatus: project.estatus || "A",
       });
     }
   }, [isEdit, location.state]);
@@ -161,6 +163,17 @@ export const EditProjectPage = () => {
           value={String(form.horasEstimadas || 0)}
           onChange={(v) => handleChange("horasEstimadas", Number(v))}
         />
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-300">Estatus</label>
+          <select
+            className="px-3 py-2 rounded-md bg-gray-800 text-white border border-gray-600"
+            value={form.estatus}
+            onChange={(e) => handleChange("estatus", e.target.value)}
+          >
+            <option value="A">Activo</option>
+            <option value="I">Inactivo</option>
+          </select>
+        </div>
       </AccordionSection>
 
       {/* SAVE */}

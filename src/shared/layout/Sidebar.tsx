@@ -32,22 +32,22 @@ export const Sidebar = () => {
 
   /**
    * ==========================================
-   * CURRENT MODULE (MEMOIZED 🔥)
+   * CURRENT MODULE
    * ==========================================
    */
   const currentModule = useMemo(() => {
     return (
-      menuConfig.find((m) => location.pathname.startsWith(m.basePath)) ||
-      menuConfig[0]
+      menuConfig.find((m) =>
+        location.pathname.startsWith(m.basePath)
+      ) || menuConfig[0]
     );
   }, [location.pathname]);
 
   const isMainModule = currentModule.basePath === "/dashboard";
-  const isAltaPersonalFlow = location.pathname.startsWith("/personal/new");
 
   /**
    * ==========================================
-   * ANIMATION KEY (STABLE)
+   * ANIMATION KEY
    * ==========================================
    */
   useEffect(() => {
@@ -56,12 +56,14 @@ export const Sidebar = () => {
 
   /**
    * ==========================================
-   * AUTO OPEN ACTIVE SUBMENU (NO LOOP)
+   * AUTO OPEN SUBMENU
    * ==========================================
    */
   useEffect(() => {
     const activeParent = currentModule.items.find((item) =>
-      item.children?.some((sub) => location.pathname.startsWith(sub.path)),
+      item.children?.some((sub) =>
+        location.pathname.startsWith(sub.path)
+      )
     );
 
     if (!activeParent) return;
@@ -74,18 +76,20 @@ export const Sidebar = () => {
 
   /**
    * ==========================================
-   * TOGGLE SUBMENU (MEMOIZED)
+   * TOGGLE SUBMENU
    * ==========================================
    */
   const toggleSubmenu = useCallback((label: string) => {
     setOpenMenus((prev) =>
-      prev.includes(label) ? prev.filter((m) => m !== label) : [...prev, label],
+      prev.includes(label)
+        ? prev.filter((l) => l !== label)
+        : [...prev, label]
     );
   }, []);
 
   /**
    * ==========================================
-   * ROUTE ACTIVE HELPER
+   * ROUTE ACTIVE
    * ==========================================
    */
   const isRouteActive = useCallback(
@@ -97,7 +101,9 @@ export const Sidebar = () => {
       }
 
       const hasChildRoute = currentModule.items.some((item) =>
-        item.children?.some((child) => child.path.startsWith(path + "/")),
+        item.children?.some((child) =>
+          child.path.startsWith(path + "/")
+        )
       );
 
       if (hasChildRoute) {
@@ -106,8 +112,12 @@ export const Sidebar = () => {
 
       return currentPath.startsWith(path);
     },
-    [location.pathname, currentModule.items],
+    [location.pathname, currentModule.items]
   );
+
+  useEffect(() => {
+    if (collapsed) setOpenMenus([]);
+  }, [collapsed]);
 
   /**
    * ==========================================
@@ -115,11 +125,12 @@ export const Sidebar = () => {
    * ==========================================
    */
   const navItem = `
-    flex items-center gap-3
+    relative flex items-center gap-3
     px-3 py-2
     rounded-xl
     transition-all duration-200 ease-out
     hover:bg-padsa-surface-light
+    hover:scale-[1.02] active:scale-[0.98]
   `;
 
   const active = `
@@ -146,7 +157,7 @@ export const Sidebar = () => {
           <motion.img
             src={logo}
             className="w-8"
-            animate={{ scale: collapsed ? 0.95 : 1 }}
+            animate={{ scale: collapsed ? 0.9 : 1 }}
           />
 
           <AnimatePresence>
@@ -191,19 +202,7 @@ export const Sidebar = () => {
         <LayoutGroup>
           <div key={animateKey} className="space-y-2">
             {currentModule.items
-              .filter((item) => {
-                // 🔥 MODO WIZARD
-                if (isAltaPersonalFlow) {
-                  return item.label === "Alta Personal";
-                }
-
-                // 🧠 NORMAL
-                if (!item.hidden) return true;
-
-                return item.children?.some((sub) =>
-                  location.pathname.startsWith(sub.path),
-                );
-              })
+              .filter((item) => !item.hidden)
               .map((item) => {
                 const Icon = item.icon;
                 const isOpen = openMenus.includes(item.label);
@@ -215,28 +214,25 @@ export const Sidebar = () => {
                     <NavLink
                       key={item.label}
                       to={item.path!}
-                      className={`
-                      relative flex items-center gap-3 px-3 py-2 rounded-xl
-                      ${collapsed ? "justify-center" : ""}
-                      ${isActive ? active : inactive}
-                    `}
+                      className={`${navItem} ${
+                        isActive ? active : inactive
+                      } ${collapsed ? "justify-center" : ""}`}
                     >
                       {isActive && (
                         <motion.span
                           layoutId="active-indicator"
                           className={`
-                          absolute
-                          ${
-                            collapsed
-                              ? "inset-1 rounded-xl bg-white/10"
-                              : "left-0 top-1 bottom-1 w-1 bg-white rounded-r-full"
-                          }
-                        `}
+                            absolute
+                            ${
+                              collapsed
+                                ? "inset-1 rounded-xl bg-white/10"
+                                : "left-0 top-1 bottom-1 w-1 bg-white rounded-r-full"
+                            }
+                          `}
                         />
                       )}
 
                       <Icon size={20} />
-
                       {!collapsed && <span>{item.label}</span>}
                     </NavLink>
                   );
@@ -246,7 +242,9 @@ export const Sidebar = () => {
                   <div key={item.label}>
                     <button
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`${navItem} w-full justify-between ${inactive}`}
+                      className={`${navItem} w-full justify-between ${
+                        isOpen ? "bg-white/5 text-white" : inactive
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <Icon size={20} />
@@ -254,45 +252,58 @@ export const Sidebar = () => {
                       </div>
 
                       {!collapsed && (
-                        <ChevronDown
-                          size={16}
-                          className={`transition-transform ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        <motion.div
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <ChevronDown size={16} />
+                        </motion.div>
                       )}
                     </button>
 
-                    {!collapsed && isOpen && (
-                      <div className="ml-8 mt-1 space-y-1">
-                        {item.children
-                          .filter(
-                            (sub) =>
-                              !sub.hidden ||
-                              location.pathname.startsWith(sub.path),
-                          )
-                          .map((sub) => {
-                            const isActive = isRouteActive(sub.path);
+                    <AnimatePresence initial={false}>
+                      {!collapsed && isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{
+                            duration: 0.25,
+                            ease: "easeInOut",
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <div className="ml-8 mt-1 space-y-1">
+                            {item.children
+                              .filter(
+                                (sub) =>
+                                  !sub.hidden ||
+                                  location.pathname.startsWith(sub.path)
+                              )
+                              .map((sub) => {
+                                const isActive = isRouteActive(sub.path);
 
-                            return (
-                              <NavLink
-                                key={sub.path}
-                                to={sub.path}
-                                className={`
-                                block px-3 py-2 text-sm rounded-lg
-                                ${
-                                  isActive
-                                    ? "bg-padsa-primary text-white"
-                                    : "text-padsa-text-secondary hover:text-white hover:bg-padsa-surface-light"
-                                }
-                              `}
-                              >
-                                {sub.label}
-                              </NavLink>
-                            );
-                          })}
-                      </div>
-                    )}
+                                return (
+                                  <NavLink
+                                    key={sub.path}
+                                    to={sub.path}
+                                    className={`
+                                      block px-3 py-2 text-sm rounded-lg
+                                      ${
+                                        isActive
+                                          ? "bg-padsa-primary text-white"
+                                          : "text-padsa-text-secondary hover:text-white hover:bg-padsa-surface-light"
+                                      }
+                                    `}
+                                  >
+                                    {sub.label}
+                                  </NavLink>
+                                );
+                              })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}

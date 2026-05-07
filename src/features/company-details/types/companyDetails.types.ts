@@ -23,7 +23,7 @@ export interface CompanyDto {
   nombre: string;
   rfc?: string; // 👈 FIX
   direccionFiscal?: string; // 👈 FIX
-  estatus: CompanyStatus;
+  estatus: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -18,6 +18,7 @@ const mapClientToForm = (client: ClientDto): ClientForm => ({
   domicilioFiscal: client.domicilioFiscal,
   email: client.email,
   telefono: client.telefono,
+  estatus: client.estatus,
 });
 
 export const EditClientPage = () => {
@@ -36,6 +37,7 @@ export const EditClientPage = () => {
     domicilioFiscal: "",
     email: "",
     telefono: "",
+    estatus: "A",
   });
 
   /**
@@ -214,6 +216,18 @@ export const EditClientPage = () => {
                 onChange={(e) => handleChange("telefono", e.target.value)}
                 className={inputStyle}
               />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Estatus</label>
+              <select
+                value={form.estatus}
+                onChange={(e) => handleChange("estatus", e.target.value)}
+                className={inputStyle}
+              >
+                <option value="A">Activo</option>
+                <option value="I">Inactivo</option>
+              </select>
             </div>
           </div>
         </div>

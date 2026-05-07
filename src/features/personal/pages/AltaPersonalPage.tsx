@@ -25,6 +25,8 @@ interface FormData {
 
   fechaAlta?: string;
   fechaBaja?: string;
+
+  estatus?: string;
 }
 
 interface Perfil {
@@ -269,6 +271,17 @@ export const AltaPersonalPage = () => {
             <div>
               <label className={labelStyle}>NSS</label>
               <input {...register("nss")} className={inputStyle} />
+            </div>
+
+            <div>
+              <label className={labelStyle}>Estatus</label>
+              <select
+                {...register("estatus", { required: true })}
+                className={inputStyle}
+              >
+                <option value="A">Activo</option>
+                <option value="I">Inactivo</option>
+              </select>
             </div>
           </div>
         </div>

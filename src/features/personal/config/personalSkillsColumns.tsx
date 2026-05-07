@@ -13,7 +13,7 @@ const renderTags = (text?: string) =>
     </span>
   ));
 
-export const usePersonalSkillsColumns = () => {
+export const usePersonalSkillsColumns = (canEdit: boolean) => {
   const navigate = useNavigate();
 
   const columns: Column<PersonalSkillsDto>[] = [
@@ -58,12 +58,12 @@ export const usePersonalSkillsColumns = () => {
       render: (row) => (
         <span
           className={`px-2 py-1 rounded text-xs ${
-            row.estatus === "ACTIVO"
+            row.estatus === "A"
               ? "bg-green-500/20 text-green-300"
               : "bg-red-500/20 text-red-300"
           }`}
         >
-          {row.estatus}
+          {row.estatus === "A" ? "Activo" : "Inactivo"}
         </span>
       ),
     },
@@ -73,7 +73,10 @@ export const usePersonalSkillsColumns = () => {
       render: (row) =>
         new Date(row.fechaUltimaModificacion).toLocaleDateString(),
     },
-    {
+  ];
+
+  if (canEdit) {
+    columns.push({
       key: "acciones",
       label: "",
       render: (row) => (
@@ -84,8 +87,8 @@ export const usePersonalSkillsColumns = () => {
           <Pencil size={14} /> Editar
         </button>
       ),
-    },
-  ];
+    });
+  }
 
   return columns;
 };

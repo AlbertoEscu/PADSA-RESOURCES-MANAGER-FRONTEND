@@ -4,77 +4,85 @@ import { Pencil } from "lucide-react";
 
 export const companyColumns = (
   onEdit: (company: CompanyRow) => void,
-): Column<CompanyRow>[] => [
-  {
-    key: "nombre",
-    label: "Nombre compañía",
-    sortable: true,
-    filterable: true,
-  },
-  {
-    key: "clave",
-    label: "Clave",
-    sortable: true,
-    filterable: true,
-  },
-  {
-    key: "rfc",
-    label: "RFC",
-    sortable: true,
-    filterable: true,
-  },
-  {
-    key: "direccionFiscal",
-    label: "Dirección fiscal",
-    sortable: true,
-    filterable: true,
-  },
-  {
-    key: "estatus",
-    label: "Estatus",
-    sortable: true,
-    filterable: true,
-    render: (row) => (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-medium ${
-          row.estatus === "Activo"
-            ? "bg-green-500/20 text-green-400"
-            : "bg-red-500/20 text-red-400"
-        }`}
-      >
-        {row.estatus}
-      </span>
-    ),
-  },
-  {
-    key: "createdAt",
-    label: "Fecha Alta",
-    sortable: true,
-    render: (row) =>
-      row.createdAt
-        ? new Date(row.createdAt).toLocaleDateString("es-MX")
-        : "-",
-  },
-  {
-    key: "updatedAt",
-    label: "Última modificación",
-    sortable: true,
-    render: (row) =>
-      row.updatedAt
-        ? new Date(row.updatedAt).toLocaleDateString("es-MX")
-        : "-",
-  },
-  {
-    key: "acciones",
-    label: "",
-    render: (row) => (
-      <button
-        onClick={() => onEdit(row)}
-        className="flex items-center gap-1 px-3 py-1 text-xs border border-padsa-primary text-padsa-primary rounded-lg transition-all duration-200 hover:bg-padsa-primary hover:text-white hover:shadow-md"
-      >
-        <Pencil size={14} />
-        Editar
-      </button>
-    ),
-  },
-];
+  canEdit: boolean,
+): Column<CompanyRow>[] => {
+  const columns: Column<CompanyRow>[] = [
+    {
+      key: "nombre",
+      label: "Nombre compañía",
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: "clave",
+      label: "Clave",
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: "rfc",
+      label: "RFC",
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: "direccionFiscal",
+      label: "Dirección fiscal",
+      sortable: true,
+      filterable: true,
+    },
+    {
+      key: "estatus",
+      label: "Estatus",
+      sortable: true,
+      filterable: true,
+      render: (row) => (
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            row.estatus === "A"
+              ? "bg-green-500/20 text-green-400"
+              : "bg-red-500/20 text-red-400"
+          }`}
+        >
+          {row.estatus === "A" ? "Activo" : "Inactivo"}
+        </span>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "Fecha Alta",
+      sortable: true,
+      render: (row) =>
+        row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString("es-MX")
+          : "-",
+    },
+    {
+      key: "updatedAt",
+      label: "Última modificación",
+      sortable: true,
+      render: (row) =>
+        row.updatedAt
+          ? new Date(row.updatedAt).toLocaleDateString("es-MX")
+          : "-",
+    },
+  ];
+
+  if (canEdit) {
+    columns.push({
+      key: "acciones",
+      label: "",
+      render: (row) => (
+        <button
+          onClick={() => onEdit(row)}
+          className="flex items-center gap-1 px-3 py-1 text-xs border border-padsa-primary text-padsa-primary rounded-lg transition-all duration-200 hover:bg-padsa-primary hover:text-white hover:shadow-md"
+        >
+          <Pencil size={14} />
+          Editar
+        </button>
+      ),
+    });
+  }
+
+  return columns;
+};

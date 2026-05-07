@@ -13,7 +13,7 @@ const mapToClientDto = (item: any): ClientDto => ({
   domicilioFiscal: item.domicilioFiscal,
   email: item.email,
   telefono: item.telefono,
-  estatus: item.estatus === "A" ? "Activo" : "Inactivo",
+  estatus: item.estatus,
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
   createdBy: item.createdBy,
@@ -31,6 +31,7 @@ const mapToRequest = (form: ClientForm) => ({
   domicilioFiscal: form.domicilioFiscal,
   email: form.email,
   telefono: form.telefono,
+  estatus: form.estatus,
 });
 
 export const clientService = {

@@ -3,7 +3,7 @@ import type { PersonalDto } from "../types/personal.types";
 import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const usePersonalColumns = () => {
+export const usePersonalColumns = (canEdit: boolean) => {
   const navigate = useNavigate();
 
   const columns: Column<PersonalDto>[] = [
@@ -60,6 +60,17 @@ export const usePersonalColumns = () => {
       key: "estatus",
       label: "Estatus",
       filterable: true,
+      render: (row) => (
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            row.estatus === "A"
+              ? "bg-green-500/20 text-green-400"
+              : "bg-red-500/20 text-red-400"
+          }`}
+        >
+          {row.estatus === "A" ? "Activo" : "Inactivo"}
+        </span>
+      ),
     },
 
     {
@@ -77,8 +88,10 @@ export const usePersonalColumns = () => {
       key: "updatedAt", // ✅ antes fechaUltimaModificacion
       label: "Última Modificación",
     },
+  ];
 
-    {
+  if (canEdit) {
+    columns.push({
       key: "acciones",
       label: "",
       render: (row) => (
@@ -104,8 +117,8 @@ export const usePersonalColumns = () => {
           Editar
         </button>
       ),
-    },
-  ];
+    });
+  }
 
   return columns;
 };

@@ -16,6 +16,8 @@ export interface TarifaRequest {
   montoEstimadoCobro2?: number;
   montoEstimadoCobro3?: number;
   montoRealFacturar?: number;
+
+  estatus: string;
 }
 
 export interface TarifaResponse {

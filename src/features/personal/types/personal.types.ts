@@ -55,6 +55,8 @@ export interface EmpleadoRequestDTO {
 
   fechaAlta?: string;
   fechaBaja?: string;
+
+  estatus: string;
 }
 
 export interface PersonalDto {

@@ -5,14 +5,13 @@ import { useEffect, useState } from "react";
 
 import { companyDetailsService } from "../services/companyDetails.service";
 import { showSuccess, showError } from "../../../shared/utils/toast";
-import type { CompanyStatus, CompanyStatusDB } from "../types/companyDetails.types";
-import { normalizeStatusFromDB } from "../components/companyHelpers";
 
 interface FormData {
   clave: string;
   nombre: string;
   rfc?: string;
   direccionFiscal?: string;
+  estatus: string;
 }
 
 export const EditCompanyPage = () => {
@@ -33,6 +32,7 @@ export const EditCompanyPage = () => {
       nombre: "",
       rfc: "",
       direccionFiscal: "",
+      estatus: "A",
     },
   });
 
@@ -50,6 +50,7 @@ export const EditCompanyPage = () => {
         setValue("nombre", data.nombre);
         setValue("rfc", data.rfc || "");
         setValue("direccionFiscal", data.direccionFiscal || "");
+        setValue("estatus", data.estatus || "A");
       } catch (error) {
         showError("Error cargando la compañía");
         console.error(error);
@@ -170,6 +171,20 @@ export const EditCompanyPage = () => {
             <p className="text-red-400 text-xs mt-1">
               {errors.direccionFiscal.message}
             </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-sm text-padsa-text-secondary">Estatus</label>
+          <select
+            {...register("estatus", { required: "Estatus requerido" })}
+            className="w-full mt-1 bg-padsa-surface border border-padsa-border rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-padsa-primary"
+          >
+            <option value="A">Activo</option>
+            <option value="I">Inactivo</option>
+          </select>
+          {errors.estatus && (
+            <p className="text-red-400 text-xs mt-1">{errors.estatus.message}</p>
           )}
         </div>
 

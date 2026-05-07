@@ -9,7 +9,7 @@ import { paymentsService } from "../services/payments.service";
 import type { PaymentDto } from "../types/payments.types";
 import { ArrowLeft, Home } from "lucide-react";
 import { personalService } from "../../personal/services/personal.service";
-import logo from "../../../assets/logo.png";
+import { useAuth } from "../../auth/context/useAuth";
 
 // 🔹 Option type
 interface Option {
@@ -19,6 +19,7 @@ interface Option {
 
 export const PaymentsPage = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const [data, setData] = useState<PaymentDto[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ export const PaymentsPage = () => {
     );
   };
 
-  const columns = usePaymentColumns(handleUpdateRow);
+  const columns = usePaymentColumns(handleUpdateRow, isAdmin);
 
   const handleFilterChange = (field: keyof PaymentDto, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));

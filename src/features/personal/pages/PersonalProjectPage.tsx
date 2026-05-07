@@ -9,8 +9,11 @@ import { usePersonalProjectColumns } from "../config/personalProjectColumns";
 
 import type { EmpleadoProyectoResponseDTO } from "../types/personal.types";
 import { empleadoProyectoService } from "../services/personalProyecto.service";
+import { useAuth } from "../../auth/context/useAuth";
 
 export const PersonalProjectPage = () => {
+  const { isAdmin } = useAuth();
+
   const navigate = useNavigate();
   const columns = usePersonalProjectColumns();
 
@@ -93,14 +96,15 @@ export const PersonalProjectPage = () => {
             <ArrowLeft size={16} />
             Volver
           </button>
-
-          <button
-            onClick={() => navigate("/personal/new/project")}
-            className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
-          >
-            <Plus size={16} />
-            Nueva Asignación
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/personal/new/project")}
+              className="flex items-center gap-2 px-4 py-2 bg-padsa-primary text-white rounded-lg hover:bg-padsa-primary/80 transition"
+            >
+              <Plus size={16} />
+              Nueva Asignación
+            </button>
+          )}
         </div>
       </div>
 
